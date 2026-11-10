@@ -7,6 +7,7 @@
   <meta name="description" content="PulsoAlert, proyecto educativo del FabLab Kä Träre: monitoreo y configuración experimental de frecuencia cardíaca.">
   <title>PulsoAlert | Kä Träre · FabLab</title>
   <link rel="stylesheet" href="styles.css">
+  <script src="bluetooth.js" defer></script>
   <script src="app.js" defer></script>
 </head>
 <body>
@@ -39,7 +40,7 @@
     <div class="content-grid">
       <section class="panel" aria-labelledby="settingsHeading">
         <div class="panel-heading"><div><p class="eyebrow">CONFIGURACIÓN</p><h2 id="settingsHeading">Parámetros de alerta</h2></div><span class="panel-icon" aria-hidden="true">⚙</span></div>
-        <p class="muted">Modifica los parámetros para explorar el diseño. En esta versión los cambios solo afectan a la demostración.</p>
+        <p class="muted">Modifica los parámetros para explorar el diseño. Sin conexión, los cambios solo afectan a la demostración. Con BLE, se envían al dispositivo.</p>
         <div class="control"><div class="control-head"><label for="threshold">Umbral de frecuencia cardíaca</label><output id="thresholdOutput" for="threshold">50 BPM</output></div><input type="range" id="threshold" min="30" max="120" step="1" value="50"><div class="range-ends"><span>30 BPM</span><span>120 BPM</span></div></div>
         <div class="control"><div class="control-head"><label for="cycles">Ciclos de vibración</label><output id="cyclesOutput" for="cycles">3 ciclos</output></div><input type="range" id="cycles" min="1" max="5" step="1" value="3"><div class="range-ends"><span>1 ciclo</span><span>5 ciclos</span></div></div>
         <div class="control"><div class="control-head"><label for="ledMinutes">Duración del parpadeo LED</label><output id="ledMinutesOutput" for="ledMinutes">2 minutos</output></div><input type="range" id="ledMinutes" min="1" max="10" step="1" value="2"><div class="range-ends"><span>1 minuto</span><span>10 minutos</span></div></div>
@@ -54,8 +55,8 @@
         <div class="info-card"><h3>Estado de integración</h3><div class="integration-row"><span>Interfaz web</span><strong class="ok">Disponible</strong></div><div class="integration-row"><span>Datos de demostración</span><strong class="ok">Disponibles</strong></div><div class="integration-row"><span>Conexión Bluetooth LE</span><strong class="pending">Pendiente</strong></div><div class="integration-row"><span>Guardar parámetros en ESP32</span><strong class="pending">Pendiente</strong></div></div>
       </section>
     </div>
-    <section class="educational-note"><span aria-hidden="true">ⓘ</span><div><strong>Proyecto educativo</strong><p>PulsoAlert es un prototipo experimental. No es un dispositivo médico ni debe utilizarse para tomar decisiones clínicas. Las mediciones mostradas aquí son simuladas.</p></div></section>
+    <section class="educational-note"><span aria-hidden="true">ⓘ</span><div><strong>Proyecto educativo</strong><p>PulsoAlert es un prototipo experimental. No es un dispositivo médico ni debe utilizarse para tomar decisiones clínicas. Sin conexión BLE, las mediciones son simuladas.</p></div></section>
   </main>
-  <footer class="site-footer"><div class="container footer-inner"><span>© Kä Träre · FabLab</span><span>PulsoAlert Web v0.4.1 · Kä Träre</span></div></footer>
+  <footer class="site-footer"><div class="container footer-inner"><span>© Kä Träre · FabLab</span><span>PulsoAlert Web v0.5.0 · Kä Träre</span></div></footer>
 </body>
 </html>

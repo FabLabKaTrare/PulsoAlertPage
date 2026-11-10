@@ -1,12 +1,10 @@
 /* ==============================================================
-   PULSOALERT WEB v0.1 - CONTROL DE INTERFAZ
+   PULSOALERT WEB v0.5.0 - CONTROL DE INTERFAZ
    Aplicación educativa sin dependencias externas.
 
    IMPORTANTE:
-   - Esta versión es un PROTOTIPO VISUAL con datos simulados.
-   - No descubre ni modifica todavía dispositivos ESP32-C3.
-   - El firmware BLE v1.5 deberá definir servicio, características,
-     formato de datos y validaciones antes de habilitar la escritura.
+   - Mantiene el simulador original y prepara BLE según contrato v1.0.
+   - El firmware BLE v1.5 todavía no está validado.
    ============================================================== */
 'use strict';
 
@@ -41,6 +39,7 @@ function updateOutputs() {
 
 /** Presenta un escenario ficticio para evaluar los estados de la interfaz. */
 function showScenario(scenario) {
+  if (PulsoBLE.connected) return; // No sobrescribir datos reales con simulación.
   currentScenario = scenario;
   const scenarios = {
     normal: { bpm: '72', contact: 'Contacto detectado (simulado)', alert: 'Normal', description: 'Sin alerta activa (simulado)', css: '' },
@@ -70,23 +69,85 @@ function resetSettings() {
   document.getElementById('settingsMessage').textContent = 'Valores de demostración restablecidos.';
 }
 
-/** Comprueba si el navegador expone Web Bluetooth; no conecta aún. */
-function explainBluetoothStatus() {
-  const notice = document.getElementById('notice');
-  const supported = Boolean(navigator.bluetooth) && window.isSecureContext;
-  notice.textContent = supported
-    ? 'El navegador admite Web Bluetooth. La conexión con PulsoAlert estará disponible cuando definamos e instalemos el firmware BLE v1.5.'
-    : 'Web Bluetooth no está disponible en este navegador o contexto. Prueba Chrome/Edge compatibles desde HTTPS o localhost. La demostración sigue funcionando.';
-  document.getElementById('connectionLabel').textContent = 'Sin conexión BLE';
+/** Muestra el estado BLE sin cambiar el layout ni las clases estructurales. */
+function setConnection(connected) {
+  document.getElementById('connectionLabel').textContent = connected ? 'PulsoAlert conectado' : 'Modo demostración';
+  document.getElementById('connectButton').textContent = connected ? 'Desconectar BLE' : 'Conectar BLE';
+  document.getElementById('applyButton').textContent = connected ? 'Aplicar al dispositivo' : 'Aplicar a demostración';
+  document.getElementById('notice').textContent = connected
+    ? 'Conexión BLE activa. Se muestran datos recibidos del ESP32-C3.'
+    : 'Modo demostración: datos simulados. No existe conexión con la pulsera.';
+  document.getElementById('connectionDot').style.backgroundColor = connected ? '#2bbf73' : '';
+  if (!connected) {
+    document.querySelector('.metric:nth-child(2) .metric-value span').textContent = 'V';
+    document.getElementById('batteryValue').textContent = '3.92';
+    document.getElementById('batteryStatus').textContent = 'Estado: normal (simulado)';
+    showScenario(currentScenario);
+  }
+}
+
+/** Interpreta una medición BLE y distingue claramente datos reales de simulados. */
+function showMeasurement(data) {
+  const valid = data.contact === 1 && data.state === 1 && data.bpm > 0;
+  document.getElementById('bpmValue').textContent = valid ? String(data.bpm) : '--';
+  document.getElementById('contactValue').textContent = data.contact === 1 ? 'Contacto detectado' : 'Sin contacto';
+  const battery = data.battery <= 100 ? `${data.battery}` : '--';
+  document.getElementById('batteryValue').textContent = battery;
+  document.querySelector('.metric:nth-child(2) .metric-value span').textContent = '%';
+  document.getElementById('batteryStatus').textContent = data.battery <= 100 ? 'Batería reportada por el dispositivo' : 'Batería no disponible';
+  const alert = document.getElementById('alertValue');
+  alert.textContent = data.alert === 1 ? '¡Alerta!' : valid ? 'Normal' : 'Sin lectura';
+  alert.className = `alert-value ${data.alert === 1 ? 'is-alert' : ''}`.trim();
+  document.getElementById('alertDescription').textContent = data.alert === 1 ? 'Alerta activa en el dispositivo' : valid ? 'Sin alerta activa' : 'Medición no disponible';
+}
+
+/** Conecta a petición del usuario; no solicita permisos al cargar la página. */
+async function toggleBluetooth() {
+  if (PulsoBLE.connected) { PulsoBLE.disconnect(); return; }
+  if (!PulsoBLE.isAvailable()) {
+    document.getElementById('notice').textContent = 'Web Bluetooth no disponible. Utiliza Chrome o Edge compatible con HTTPS. El simulador sigue funcionando.';
+    return;
+  }
+  const button = document.getElementById('connectButton');
+  button.disabled = true;
+  try {
+    const config = await PulsoBLE.connect({connection:setConnection,measurement:showMeasurement});
+    for (const [key,value] of Object.entries(config)) controls[key].value = String(value);
+    updateOutputs();
+    document.getElementById('settingsMessage').textContent = 'Configuración actual leída del ESP32-C3.';
+  } catch (error) {
+    document.getElementById('notice').textContent = `No se estableció conexión BLE: ${error.message}`;
+  } finally {button.disabled = false;}
 }
 
 // Los controles muestran sus valores en tiempo real.
 Object.values(controls).forEach(control => control.addEventListener('input', updateOutputs));
 
 // El botón de aplicar confirma únicamente los valores del simulador.
-document.getElementById('applyButton').addEventListener('click', () => {
-  document.getElementById('settingsMessage').textContent =
-    'Configuración aplicada solo a la demostración. No se envió al ESP32-C3.';
+document.getElementById('applyButton').addEventListener('click', async () => {
+  const message = document.getElementById('settingsMessage');
+  if (!PulsoBLE.connected) {
+    message.textContent = 'Configuración aplicada solo a la demostración. No se envió al ESP32-C3.';
+    return;
+  }
+  const button = document.getElementById('applyButton');
+  button.disabled = true;
+  message.textContent = 'Enviando configuración y verificando persistencia...';
+  try {
+    const settings = Object.fromEntries(Object.entries(controls).map(([key,element]) => [key,Number(element.value)]));
+    const results = await PulsoBLE.applySettings(settings);
+    const success = results.filter(item => item.ok).map(item => item.key);
+    const failure = results.find(item => !item.ok);
+    message.textContent = failure
+      ? `Confirmados: ${success.join(', ') || 'ninguno'}. Falló ${failure.key}: ${failure.error}. Comprueba los valores del dispositivo.`
+      : 'Los tres parámetros fueron confirmados y releídos desde el dispositivo.';
+    if (failure && PulsoBLE.connected) {
+      const actual = await PulsoBLE.readSettings();
+      for (const [key,value] of Object.entries(actual)) controls[key].value = String(value);
+      updateOutputs();
+    }
+  } catch (error) { message.textContent = `Configuración no confirmada: ${error.message}`; }
+  finally { button.disabled = false; }
 });
 
 document.getElementById('resetButton').addEventListener('click', resetSettings);
@@ -97,7 +158,7 @@ document.querySelectorAll('[data-scenario]').forEach(button => {
 });
 
 // No se solicita acceso Bluetooth hasta implementar el protocolo real.
-document.getElementById('connectButton').addEventListener('click', explainBluetoothStatus);
+document.getElementById('connectButton').addEventListener('click', toggleBluetooth);
 
 // Estado inicial de la interfaz.
 updateOutputs();
