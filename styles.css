@@ -133,3 +133,19 @@ body.light-theme{--background:#f6f7f9;--surface:#fff;--text:#11151b;--muted:#596
 /* v0.5.6: separación visual mínima del simulador de batería, sin alterar el layout. */
 .battery-simulator-heading{margin:22px 0 7px;font-size:15px;font-weight:700}
 .battery-simulation-grid{margin-top:12px}
+
+/* Biblioteca de documentación: estilos aislados para preservar la interfaz v0.5.6. */
+.documentation { margin-top: 28px; padding: 26px; border: 1px solid var(--border, #444); border-radius: 18px; background: var(--surface, rgba(128,128,128,.06)); }
+.documentation-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 16px; margin-top: 22px; }
+.documentation-card { min-width: 0; padding: 20px; border: 1px solid var(--border, #555); border-radius: 14px; background: var(--card, rgba(128,128,128,.055)); }
+.documentation-card h3 { margin: 6px 0 10px; font-size: 1.15rem; }
+.documentation-card > .muted { min-height: 3.4em; }
+.documentation-files { display: grid; gap: 14px; margin-top: 20px; }
+.documentation-file { padding-top: 13px; border-top: 1px solid var(--border, #555); }
+.documentation-file strong { display: block; font-size: .93rem; margin-bottom: 10px; }
+.documentation-actions { display: flex; flex-wrap: wrap; gap: 8px 14px; }
+.documentation-actions a { color: var(--accent, #e6b83f); font-weight: 600; font-size: .86rem; text-decoration: underline; text-underline-offset: 3px; }
+.documentation-actions a:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
+.documentation-version { margin: 20px 0 0; font-size: .83rem; opacity: .8; }
+@media (max-width: 850px) { .documentation-grid { grid-template-columns: 1fr; } .documentation-card > .muted { min-height: 0; } }
+@media (max-width: 520px) { .documentation { padding: 18px; } .documentation-card { padding: 16px; } }
