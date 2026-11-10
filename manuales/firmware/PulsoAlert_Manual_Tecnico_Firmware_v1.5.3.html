@@ -1,0 +1,359 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="dark light"><title>PulsoAlert | PulsoAlert</title><link rel="stylesheet" href="../../manual-viewer.css?v=0.5.7"></head><body><header class="manual-header"><div class="manual-header-inner"><a href="../../index.html#documentacion"><img src="../../assets/katrare-logo.png" alt="Kä Träre · FabLab"></a><span>PulsoAlert · Documentación v0.5.7</span><button type="button" id="manualTheme" aria-label="Cambiar tema">◐ Tema</button></div></header><div class="manual-layout"><aside class="manual-toc"><strong>Contenido</strong><nav aria-label="Índice del documento"><a class="toc-level-1" href="#pulsoalert">PulsoAlert</a><a class="toc-level-2" href="#manual-t-cnico-del-firmware-y-arquitectura-funcional">Manual técnico del firmware y arquitectura funcional</a><a class="toc-level-2" href="#1-prop-sito-y-l-mites-del-sistema">1. Propósito y límites del sistema</a><a class="toc-level-2" href="#2-estructura-del-c-digo-fuente">2. Estructura del código fuente</a><a class="toc-level-2" href="#3-arquitectura-de-se-ales">3. Arquitectura de señales</a><a class="toc-level-2" href="#4-inicializaci-n-y-planificaci-n-del-firmware">4. Inicialización y planificación del firmware</a><a class="toc-level-2" href="#5-algoritmo-ptico-y-estimaci-n-de-bpm">5. Algoritmo óptico y estimación de BPM</a><a class="toc-level-2" href="#6-m-quina-de-estados-de-frecuencia-baja">6. Máquina de estados de frecuencia baja</a><a class="toc-level-2" href="#7-temporizaci-n-de-motor-y-led">7. Temporización de motor y LED</a><a class="toc-level-2" href="#8-bater-a-y-clasificaci-n-energ-tica">8. Batería y clasificación energética</a><a class="toc-level-2" href="#9-visualizaci-n-oled-dise-o-y-estados">9. Visualización OLED: diseño y estados</a><a class="toc-level-3" href="#prototipos-de-interfaz-esquem-ticos-no-capturas-de-hardware">Prototipos de interfaz (esquemáticos, no capturas de hardware)</a><a class="toc-level-2" href="#10-bluetooth-low-energy-servicio-y-caracter-sticas">10. Bluetooth Low Energy: servicio y características</a><a class="toc-level-3" href="#paquete-measurement-gatt-v1-1">Paquete MEASUREMENT GATT v1.1</a><a class="toc-level-3" href="#escritura-validaci-n-y-respuesta">Escritura, validación y respuesta</a><a class="toc-level-2" href="#11-diagn-stico-usb-cdc-incidencia-abierta">11. Diagnóstico USB CDC: incidencia abierta</a><a class="toc-level-2" href="#12-validaci-n-y-trazabilidad-de-versiones">12. Validación y trazabilidad de versiones</a><a class="toc-level-2" href="#13-seguridad-y-l-mites">13. Seguridad y límites</a><a class="toc-level-2" href="#14-referencias-documentales-y-de-c-digo">14. Referencias documentales y de código</a><a class="toc-level-2" href="#15-descargo-de-responsabilidad">15. Descargo de responsabilidad</a></nav></aside><main class="manual-content"><div class="manual-actions"><a href="../../index.html#documentacion">← Volver a manuales</a><a href="PulsoAlert_Manual_Tecnico_Firmware_v1.5.3.md" download>Descargar Markdown</a></div><article class="markdown-body"><h1 id="pulsoalert">PulsoAlert</h1>
+<h2 id="manual-t-cnico-del-firmware-y-arquitectura-funcional">Manual técnico del firmware y arquitectura funcional</h2>
+<p><strong>Proyecto:</strong> PulsoAlert<br />
+<strong>Institución:</strong> Universidad Estatal a Distancia (UNED), Costa Rica · Fab Lab Kä Träre<br />
+<strong>Responsable:</strong> Ing. Harold Carvajal Álvarez<br />
+<strong>Fecha de creación:</strong> 10 de noviembre de 2026<br />
+<strong>Firmware de referencia probado:</strong> v1.5.3<br />
+<strong>Sitio web de referencia:</strong> PulsoAlert Web v0.5.6<br />
+<strong>Naturaleza:</strong> prototipo experimental y educativo, no dispositivo médico</p>
+<blockquote>
+<p><strong>Alcance técnico.</strong> Este manual describe la implementación real del sketch <code>PulsoAlert_v1.5.3.ino</code>, su estructura funcional, contrato BLE y limitaciones observadas. Los diagramas y prototipos son representaciones documentales derivadas del código, no fotografías ni pruebas instrumentadas.</p>
+</blockquote>
+<h2 id="1-prop-sito-y-l-mites-del-sistema">1. Propósito y límites del sistema</h2>
+<p>PulsoAlert es un firmware cooperativo para ESP32-C3 que integra lectura óptica, estimación experimental de BPM, detección de contacto, alerta de frecuencia baja, control de actuadores, visualización OLED, supervisión de voltaje LiPo y comunicación BLE con configuración persistente. No existe validación clínica del algoritmo ni autenticación BLE en la versión documentada.</p>
+<p>La referencia web asociada es <strong>PulsoAlert Web v0.5.6</strong>. El código del sitio y sus simuladores se documentan por separado en el área WebBLE. La arquitectura eléctrica completa y las fotografías de montaje pertenecen al área Hardware.</p>
+<h2 id="2-estructura-del-c-digo-fuente">2. Estructura del código fuente</h2>
+<table>
+<thead>
+<tr>
+  <th>Bloque del sketch</th>
+  <th>Símbolos y funciones principales</th>
+  <th>Responsabilidad</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>1. Hardware</td>
+  <td><code>PIN_SDA</code>, <code>PIN_SCL</code>, <code>PIN_MOTOR</code>, <code>PIN_LED</code>, <code>PIN_BOOT</code>, <code>PIN_BATERIA</code></td>
+  <td>Asignación de pines y polaridades</td>
+</tr>
+<tr>
+  <td>2. Medición</td>
+  <td><code>IR_MINIMO</code>, <code>muestrasBPM</code>, <code>actualizarSensor()</code>, <code>reiniciarMediciones()</code></td>
+  <td>Contacto, detección de latidos y promedio BPM</td>
+</tr>
+<tr>
+  <td>3. Alertas</td>
+  <td><code>EstadoAlerta</code>, <code>EstadoMotor</code>, temporizadores</td>
+  <td>Parámetros y estados de actuación</td>
+</tr>
+<tr>
+  <td>4. Motor y LED</td>
+  <td><code>iniciarMotor()</code>, <code>actualizarMotor()</code>, <code>iniciarLED()</code>, <code>actualizarLED()</code></td>
+  <td>Patrones no bloqueantes</td>
+</tr>
+<tr>
+  <td>5. Máquina de alerta</td>
+  <td><code>activarAlerta()</code>, <code>cancelarAlerta()</code>, <code>actualizarAlerta()</code></td>
+  <td>Confirmación, recuperación y cancelación</td>
+</tr>
+<tr>
+  <td>6. Batería</td>
+  <td><code>leerVoltajeBateria()</code>, <code>clasificarBateria()</code>, <code>actualizarBateria()</code></td>
+  <td>ADC, filtros y estado energético</td>
+</tr>
+<tr>
+  <td>7. Interfaz</td>
+  <td><code>actualizarBotonBoot()</code>, <code>mostrarPantallaPrincipal()</code>, <code>mostrarPantallaConfiguracion()</code>, <code>actualizarOLED()</code></td>
+  <td>Navegación y renderizado</td>
+</tr>
+<tr>
+  <td>8. Diagnóstico</td>
+  <td><code>actualizarSerial()</code></td>
+  <td>Telemetría por USB CDC cada 2 s</td>
+</tr>
+<tr>
+  <td>9. BLE y NVS</td>
+  <td><code>cargarConfiguracion()</code>, <code>EventosEscrituraBLE</code>, <code>procesarSolicitudBLE()</code>, <code>publicarMedicionBLE()</code>, <code>iniciarBLE()</code>, <code>actualizarBLE()</code></td>
+  <td>Transporte GATT y persistencia</td>
+</tr>
+<tr>
+  <td>10. Ejecución</td>
+  <td><code>setup()</code>, <code>loop()</code></td>
+  <td>Inicialización y planificación cooperativa</td>
+</tr>
+</tbody>
+</table>
+<p>La numeración de comentarios internos del sketch es histórica y puede repetir un número de sección. La tabla anterior organiza conceptualmente los módulos sin modificar el archivo fuente.</p>
+<h2 id="3-arquitectura-de-se-ales">3. Arquitectura de señales</h2>
+<pre><code class="language-mermaid">flowchart LR
+  MAX[MAX30102: IR] --&gt;|I²C SDA5/SCL6| ESP[ESP32-C3]
+  ESP --&gt;|I²C SDA5/SCL6| OLED[OLED SSD1306 72x40]
+  ESP --&gt;|GPIO4 HIGH| DRV[Driver] --&gt; MOTOR[Motor]
+  ESP --&gt;|GPIO8 LOW| LED[LED integrado]
+  BOOT[BOOT GPIO9] --&gt; ESP
+  LIPO[LiPo] --&gt; DIV[100k/100k] --&gt;|GPIO0 ADC| ESP
+  ESP &lt;--&gt;|GATT v1.1| WEB[PulsoAlert Web v0.5.6]
+</code></pre>
+<p><strong>Alcance del diagrama:</strong> las señales GPIO están documentadas y verificadas; no constituye esquema eléctrico completo del sistema de alimentación o protección LiPo.</p>
+<h2 id="4-inicializaci-n-y-planificaci-n-del-firmware">4. Inicialización y planificación del firmware</h2>
+<p><code>setup()</code> abre la consola a 115200 baudios, inicializa GPIO, ADC, I²C, OLED, sensor, batería, parámetros NVS y servidor BLE. El sensor se inicia con <code>sensor.begin(Wire, I2C_SPEED_FAST)</code> y <code>sensor.setup()</code> sin parámetros; los ajustes ópticos individuales dependen de los valores predeterminados de la biblioteca instalada. La OLED utiliza <code>U8G2_SSD1306_72X40_ER_F_HW_I2C</code> y dirección <code>0x3C × 2</code> en la API de U8g2.</p>
+<p>El <code>loop()</code> ejecuta, en este orden, sensor, alerta, motor, LED, batería, botón, OLED, consola, cola de configuración BLE y publicación BLE. Cada función consulta <code>millis()</code> para actuar únicamente cuando corresponde. No se utilizan <code>delay()</code> en la ejecución normal de los actuadores; existe un <code>delay(1000)</code> deliberado en el bucle de fallo crítico de inicialización del sensor.</p>
+<pre><code class="language-mermaid">flowchart TD
+  START[setup: GPIO, I2C, OLED, MAX30102, ADC] --&gt; NVS[Cargar y validar NVS]
+  NVS --&gt; BLE[Iniciar GATT y publicidad]
+  BLE --&gt; LOOP[loop]
+  LOOP --&gt; S[Sensor]
+  S --&gt; A[Alerta]
+  A --&gt; M[Motor y LED]
+  M --&gt; B[Batería]
+  B --&gt; U[BOOT y OLED]
+  U --&gt; SER[Telemetría serie]
+  SER --&gt; CFG[Cola de configuración]
+  CFG --&gt; PUB[Notificación BLE]
+  PUB --&gt; LOOP
+</code></pre>
+<h2 id="5-algoritmo-ptico-y-estimaci-n-de-bpm">5. Algoritmo óptico y estimación de BPM</h2>
+<ol>
+<li><code>sensor.getIR()</code> obtiene una muestra infrarroja de la señal reflejada.</li>
+<li>Si <code>IR &lt; 50000</code>, se considera ausencia de contacto y se reinician las muestras.</li>
+<li>Si existe contacto, <code>checkForBeat(ir)</code> identifica eventos de latido a partir de la señal óptica.</li>
+<li>El intervalo entre eventos se mide con <code>millis()</code>: <strong>BPM = 60 000 / intervalo_ms</strong>.</li>
+<li>Se admiten valores instantáneos en el intervalo <strong>20–220 BPM</strong>.</li>
+<li>Los últimos <strong>hasta cuatro</strong> BPM válidos se guardan en un arreglo circular y se promedian.</li>
+<li>Si transcurren <strong>más de 4000 ms</strong> sin latido, la medición se invalida.</li>
+</ol>
+<p>El algoritmo no calcula una métrica independiente de calidad de señal; el umbral IR solo estima contacto. La señal puede verse afectada por movimiento, presión, luz ambiental y posicionamiento sobre la muñeca. La variable histórica <code>dedoPresente</code> representa contacto óptico aunque la interfaz utilice el texto apropiado para pulsera <code>SIN CONTACTO</code>.</p>
+<h2 id="6-m-quina-de-estados-de-frecuencia-baja">6. Máquina de estados de frecuencia baja</h2>
+<pre><code class="language-mermaid">stateDiagram-v2
+  [*] --&gt; NORMAL
+  NORMAL --&gt; CONFIRMANDO_BAJA: BPM válido &lt; umbral
+  CONFIRMANDO_BAJA --&gt; NORMAL: BPM &gt;= umbral
+  CONFIRMANDO_BAJA --&gt; ACTIVA: 5000 ms de baja
+  ACTIVA --&gt; CONFIRMANDO_RECUPERACION: BPM &gt;= umbral
+  CONFIRMANDO_RECUPERACION --&gt; ACTIVA: vuelve a bajar
+  CONFIRMANDO_RECUPERACION --&gt; NORMAL: 2000 ms de recuperación
+  ACTIVA --&gt; NORMAL: sin contacto / BPM inválido
+  CONFIRMANDO_RECUPERACION --&gt; NORMAL: sin contacto / BPM inválido
+</code></pre>
+<table>
+<thead>
+<tr>
+  <th>Estado</th>
+  <th>Condición</th>
+  <th>Efecto</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>NORMAL</code></td>
+  <td>BPM normal o ausencia de episodio</td>
+  <td>Salidas sin alerta</td>
+</tr>
+<tr>
+  <td><code>CONFIRMANDO_BAJA</code></td>
+  <td>BPM válido inferior al umbral</td>
+  <td>Cuenta 5000 ms</td>
+</tr>
+<tr>
+  <td><code>ACTIVA</code></td>
+  <td>Baja confirmada</td>
+  <td>Inicia motor y LED, prioriza OLED principal</td>
+</tr>
+<tr>
+  <td><code>CONFIRMANDO_RECUPERACION</code></td>
+  <td>BPM volvió al umbral o superior</td>
+  <td>Cuenta 2000 ms; alerta sigue activa</td>
+</tr>
+</tbody>
+</table>
+<p>La pérdida de señal cancela el episodio; no genera una alerta de BPM bajo. El umbral inicial es 50 BPM y el rango de escritura BLE es 30–120 BPM.</p>
+<h2 id="7-temporizaci-n-de-motor-y-led">7. Temporización de motor y LED</h2>
+<p>El motor implementa la máquina <code>INACTIVO → PULSO → PAUSA_PULSO → PAUSA_CICLO → TERMINADO</code>. Cada ciclo contiene tres pulsos de 300 ms y dos pausas internas de 200 ms; después se aplica una pausa de 1000 ms antes de otro ciclo. El máximo inicial es tres ciclos, configurable entre uno y cinco. La salida GPIO4 controla el driver del motor; no alimenta directamente el motor.</p>
+<pre><code class="language-text">Tiempo ilustrativo (ms)       0    300  500  800 1000 1300 2300
+Motor, ciclo 1               [ON] OFF [ON] OFF [ON]   OFF...
+Duración de cada ON: 300 ms; pausa entre ON: 200 ms
+Pausa entre ciclos: 1000 ms (después de terminar el ciclo)
+</code></pre>
+<p>El LED GPIO8 es <strong>activo LOW</strong> y tiene un temporizador independiente desde <code>inicioLED</code>. Utiliza un patrón equivalente al motor, pero puede seguir parpadeando después de que el motor complete sus ciclos. Duración inicial: 2 minutos; rango remoto: 1–10 minutos. Si se confirma recuperación o desaparece una señal válida, se apagan ambos actuadores. Los cambios de configuración durante una alerta activa pueden modificar los límites temporales del episodio en curso.</p>
+<h2 id="8-bater-a-y-clasificaci-n-energ-tica">8. Batería y clasificación energética</h2>
+<p>El ADC GPIO0 mide la salida del divisor 100 kΩ / 100 kΩ. La tensión reconstruida se calcula como:</p>
+<p><strong>V_batería = promedio(analogReadMilliVolts(GPIO0), 16) / 1000 × 2,0 × 1,0</strong>.</p>
+<p>Se actualiza cada 2000 ms. El estado se clasifica con <strong>BAJA &lt;3,50 V</strong> y <strong>CRÍTICA &lt;3,30 V</strong>, y exige 10 s de estabilidad para cambiar de categoría. Los umbrales son orientativos y no sustituyen el circuito de protección de la LiPo. La calibración 1,0 no representa una certificación metrológica; la comparación sistemática con multímetro sigue siendo una mejora posible.</p>
+<p>En BLE se transmite voltaje en <strong>milivoltios</strong> y el campo de porcentaje conserva el valor <strong>255 = desconocido</strong>. No existe estimación calibrada de porcentaje de carga.</p>
+<h2 id="9-visualizaci-n-oled-dise-o-y-estados">9. Visualización OLED: diseño y estados</h2>
+<p>Pantalla SSD1306 de <strong>72 × 40 píxeles</strong>, actualizada cada <strong>200 ms</strong> mediante búfer de U8g2. Fuentes efectivas del código: <code>u8g2_font_5x7_tr</code>, <code>u8g2_font_5x7_tf</code> y <code>u8g2_font_helvB14_tr</code> para BPM grandes. La pantalla principal reserva la línea superior para el estado, el centro para BPM y la inferior para batería. El botón BOOT cambia a la vista de configuración; la alerta tiene prioridad visual.</p>
+<h3 id="prototipos-de-interfaz-esquem-ticos-no-capturas-de-hardware">Prototipos de interfaz (esquemáticos, no capturas de hardware)</h3>
+<pre><code class="language-text">┌──────────────────────┐  ┌──────────────────────┐
+│ MONITOREO            │  │ LEYENDO...           │
+│                      │  │                      │
+│  72 BPM              │  │ -- BPM               │
+│ BAT: OK              │  │ BAT: OK              │
+└──────────────────────┘  └──────────────────────┘
+
+┌──────────────────────┐  ┌──────────────────────┐
+│ CONFIG.              │  │ ALERTA FC!           │
+│ BAT: 3.92V           │  │                      │
+│ UMB: 50 BPM          │  │  45 BPM              │
+│ BOOT: VOLVER         │  │ BAT: BAJA            │
+└──────────────────────┘  └──────────────────────┘
+</code></pre>
+<p>Los ejemplos 72 BPM, 45 BPM y 3,92 V son <strong>valores de demostración</strong>, no datos observados en una prueba. En la pantalla real el ancho de la etiqueta BPM se calcula con <code>getStrWidth()</code> para evitar desbordamiento horizontal.</p>
+<h2 id="10-bluetooth-low-energy-servicio-y-caracter-sticas">10. Bluetooth Low Energy: servicio y características</h2>
+<p>El dispositivo anuncia <strong><code>PulsoAlert</code></strong> y el servicio <strong><code>f0a10000-7b4d-4c6a-9e20-3b8c8f100001</code></strong>. Las cinco características conservan el sufijo <code>-7b4d-4c6a-9e20-3b8c8f100001</code>:</p>
+<table>
+<thead>
+<tr>
+  <th>Característica</th>
+  <th>UUID (prefijo)</th>
+  <th>Propiedades</th>
+  <th>Datos</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>MEASUREMENT</code></td>
+  <td><code>f0a10001</code></td>
+  <td>Read / Notify</td>
+  <td>8 bytes</td>
+</tr>
+<tr>
+  <td><code>BPM_THRESHOLD</code></td>
+  <td><code>f0a10002</code></td>
+  <td>Read / Write</td>
+  <td>uint16 little-endian, 30–120</td>
+</tr>
+<tr>
+  <td><code>VIBRATION_CYCLES</code></td>
+  <td><code>f0a10003</code></td>
+  <td>Read / Write</td>
+  <td>uint8, 1–5</td>
+</tr>
+<tr>
+  <td><code>LED_DURATION</code></td>
+  <td><code>f0a10004</code></td>
+  <td>Read / Write</td>
+  <td>uint16 little-endian, minutos 1–10</td>
+</tr>
+<tr>
+  <td><code>CONFIG_STATUS</code></td>
+  <td><code>f0a10005</code></td>
+  <td>Read / Notify</td>
+  <td>4 bytes</td>
+</tr>
+</tbody>
+</table>
+<h3 id="paquete-measurement-gatt-v1-1">Paquete <code>MEASUREMENT</code> GATT v1.1</h3>
+<table>
+<thead>
+<tr>
+  <th>Bytes</th>
+  <th>Tipo</th>
+  <th>Semántica</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>0–1</td>
+  <td>uint16 LE</td>
+  <td>BPM; 0 indica valor inválido</td>
+</tr>
+<tr>
+  <td>2</td>
+  <td>uint8</td>
+  <td>Contacto: 0 no, 1 sí</td>
+</tr>
+<tr>
+  <td>3</td>
+  <td>uint8</td>
+  <td>Batería porcentual: 255 desconocido</td>
+</tr>
+<tr>
+  <td>4</td>
+  <td>uint8</td>
+  <td>Alerta: 0 no, 1 sí</td>
+</tr>
+<tr>
+  <td>5</td>
+  <td>uint8</td>
+  <td>Estado: 0 esperando contacto, 1 BPM válido, 2 señal sin BPM válido</td>
+</tr>
+<tr>
+  <td>6–7</td>
+  <td>uint16 LE</td>
+  <td>Voltaje de batería en mV; 0 no disponible</td>
+</tr>
+</tbody>
+</table>
+<p>La publicación se realiza aproximadamente cada <strong>1000 ms</strong>. El formato de ocho bytes amplía el de seis bytes de GATT v1.0. Una web que valide exactamente seis bytes rechazará el nuevo paquete, como ocurrió en una prueba anterior.</p>
+<h3 id="escritura-validaci-n-y-respuesta">Escritura, validación y respuesta</h3>
+<p>El callback <code>EventosEscrituraBLE::onWrite()</code> copia la solicitud a una <strong>cola FreeRTOS de capacidad ocho</strong>. El bucle principal extrae solicitudes sin espera, valida longitud y rango, escribe en NVS y solo después actualiza el valor efectivo. La característica <code>CONFIG_STATUS</code> notifica cuatro bytes: <strong>resultado</strong>, <strong>parámetro</strong>, <strong>valor vigente uint16 LE</strong>. Códigos de resultado: 0 inicial, 1 guardado, 2 inválido, 3 error NVS. Identificadores: 0 ninguno, 1 umbral, 2 ciclos, 3 LED.</p>
+<pre><code class="language-mermaid">sequenceDiagram
+  participant Web as WebBLE
+  participant CB as Callback BLE
+  participant Q as Cola FreeRTOS
+  participant Loop as Loop principal
+  participant NVS as Preferences/NVS
+  Web-&gt;&gt;CB: Write parámetro
+  CB-&gt;&gt;Q: Encolar solicitud
+  Loop-&gt;&gt;Q: Extraer sin espera
+  Loop-&gt;&gt;Loop: Validar longitud y rango
+  alt Válida
+    Loop-&gt;&gt;NVS: Persistir
+    NVS--&gt;&gt;Loop: Resultado
+    Loop--&gt;&gt;Web: CONFIG_STATUS (guardado/error)
+  else Inválida
+    Loop--&gt;&gt;Web: CONFIG_STATUS (inválido)
+  end
+</code></pre>
+<p><strong>Persistencia:</strong> namespace <code>pulsoalert</code>; claves <code>umbral</code> (<code>uint16</code>), <code>ciclos</code> (<code>uint8</code>) y <code>ledmin</code> (<code>uint16</code>). Valores predeterminados: 50 BPM, 3 ciclos y 2 min. Se recuperan antes de iniciar BLE. La confirmación de persistencia tras reiniciar proviene de pruebas comunicadas por el responsable del prototipo.</p>
+<h2 id="11-diagn-stico-usb-cdc-incidencia-abierta">11. Diagnóstico USB CDC: incidencia abierta</h2>
+<p>La fuente v1.5.3 conserva <code>actualizarSerial(ahora)</code> en <code>loop()</code>. Esa función imprime datos cada <strong>2000 ms</strong>. Durante pruebas, cerrar el monitor serie provocó que la OLED se congelara después de aproximadamente dos segundos; reabrirlo restablecía la actualización. Al comentar la llamada a <code>actualizarSerial(ahora)</code>, el sistema siguió funcionando correctamente. Añadir una comprobación <code>if (!Serial)</code> no resolvió la incidencia. Una propuesta posterior basada en <code>availableForWrite()</code> <strong>no tiene confirmación de prueba</strong>.</p>
+<p>La correlación con el período de telemetría y el resultado del aislamiento señalan la ruta de salida serie como factor causal probable, pero no prueban un bloqueo interno específico del controlador USB. No debe describirse como resuelto ni sustituirse la fuente aprobada por una modificación no validada.</p>
+<p><strong>Protocolo de reproducción de incidencia:</strong> compilar fuente original; observar OLED con monitor abierto; cerrar monitor y esperar 20 s; registrar actualización de pantalla y BLE; volver a abrir monitor; repetir con una copia experimental que desactive únicamente la llamada serie; comparar resultados. Las pruebas de diagnóstico deben realizarse sobre una copia, no sobre el archivo original de referencia.</p>
+<h2 id="12-validaci-n-y-trazabilidad-de-versiones">12. Validación y trazabilidad de versiones</h2>
+<table>
+<thead>
+<tr>
+  <th>Versión</th>
+  <th>Cambio funcional</th>
+  <th>Evidencia</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>v1.4.2</td>
+  <td>Base óptica, OLED, batería y alertas; LED corregido</td>
+  <td>Probado históricamente</td>
+</tr>
+<tr>
+  <td>v1.5.0</td>
+  <td>Notificaciones BLE de BPM/alertas</td>
+  <td>Confirmación de funcionamiento con web</td>
+</tr>
+<tr>
+  <td>v1.5.1 rev. A</td>
+  <td>Configuración, NVS, GATT v1.1, prototipos explícitos</td>
+  <td>Compilación y carga confirmadas; incompatibilidad temporal con web antigua</td>
+</tr>
+<tr>
+  <td><strong>v1.5.3</strong></td>
+  <td>Identificación de versión y continuidad de la lógica anterior</td>
+  <td>Web, batería y persistencia confirmadas; problema serie aún abierto</td>
+</tr>
+</tbody>
+</table>
+<p>La versión <strong>PulsoAlert Web v0.5.6</strong> se incorpora como referencia de integración proporcionada para esta edición; su código no se analiza ni se reproduce aquí.</p>
+<h2 id="13-seguridad-y-l-mites">13. Seguridad y límites</h2>
+<ul>
+<li>La salida GPIO4 gobierna el <strong>driver</strong>, no el motor directamente.</li>
+<li>GPIO0 recibe la <strong>salida del divisor</strong>, no los 3,7–4,2 V directos de la LiPo.</li>
+<li>La protección y carga de batería requieren componentes adecuados y polaridad verificada.</li>
+<li>No mantener BOOT presionado al iniciar el equipo.</li>
+<li>El firmware no cuenta con autenticación BLE y no está diseñado para entornos con exigencias de confidencialidad o integridad clínica.</li>
+<li>La medición óptica de muñeca no está validada clínicamente y no debe utilizarse para decisiones médicas.</li>
+</ul>
+<h2 id="14-referencias-documentales-y-de-c-digo">14. Referencias documentales y de código</h2>
+<ul>
+<li>Fuente primaria: <code>PulsoAlert_v1.5.3.ino</code> (sin modificaciones).</li>
+<li>Contrato compartido: <code>PulsoAlert_Contrato_BLE_v1.1.md</code>.</li>
+<li>Consolidación previa: <code>PulsoAlert_Documentacion_Firmware.md</code>, <code>PulsoAlert_Inventario_Firmware.md</code>.</li>
+<li>Sitio: <a href="https://fablabkatrare.github.io/PulsoAlertPage/">https://fablabkatrare.github.io/PulsoAlertPage/</a></li>
+<li>Arduino-ESP32: <a href="https://docs.espressif.com/projects/arduino-esp32/en/latest/">https://docs.espressif.com/projects/arduino-esp32/en/latest/</a></li>
+<li>U8g2: <a href="https://github.com/olikraus/u8g2">https://github.com/olikraus/u8g2</a></li>
+<li>SparkFun MAX3010x: <a href="https://github.com/sparkfun/SparkFun_MAX3010x_Sensor_Library">https://github.com/sparkfun/SparkFun_MAX3010x_Sensor_Library</a></li>
+</ul>
+<h2 id="15-descargo-de-responsabilidad">15. Descargo de responsabilidad</h2>
+<p>PulsoAlert es un prototipo de investigación aplicada y educación tecnológica del Fab Lab Kä Träre, UNED, Costa Rica. La estimación de frecuencia cardíaca, los avisos hápticos y luminosos y la lectura energética son experimentales; no se dispone de certificación médica, ensayos de precisión clínica ni garantías de disponibilidad continua. La pérdida de señal, los movimientos y los problemas de alimentación o firmware pueden producir lecturas erróneas o ausencia de aviso. El uso debe limitarse a demostraciones y actividades educativas bajo condiciones seguras. La documentación no autoriza empleo médico ni sustituye la documentación de seguridad de los componentes.</p>
+</article><div class="manual-actions"><a href="../../index.html#documentacion">← Volver a PulsoAlert</a></div></main></div><script src="../../manual-viewer.js?v=0.5.7"></script></body></html>

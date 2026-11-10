@@ -1,0 +1,249 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="dark light"><title>Manual de construcción y funcionamiento — PulsoAlert WebBLE | PulsoAlert</title><link rel="stylesheet" href="../../manual-viewer.css?v=0.5.7"></head><body><header class="manual-header"><div class="manual-header-inner"><a href="../../index.html#documentacion"><img src="../../assets/katrare-logo.png" alt="Kä Träre · FabLab"></a><span>PulsoAlert · Documentación v0.5.7</span><button type="button" id="manualTheme" aria-label="Cambiar tema">◐ Tema</button></div></header><div class="manual-layout"><aside class="manual-toc"><strong>Contenido</strong><nav aria-label="Índice del documento"><a class="toc-level-1" href="#manual-de-construcci-n-y-funcionamiento-pulsoalert-webble">Manual de construcción y funcionamiento — PulsoAlert WebBLE</a><a class="toc-level-2" href="#1-prop-sito-y-alcance">1. Propósito y alcance</a><a class="toc-level-2" href="#2-arquitectura-general">2. Arquitectura general</a><a class="toc-level-2" href="#3-archivos-de-la-versi-n-v0-5-6">3. Archivos de la versión v0.5.6</a><a class="toc-level-2" href="#4-estructura-de-la-interfaz">4. Estructura de la interfaz</a><a class="toc-level-2" href="#5-identidad-visual-k-tr-re">5. Identidad visual Kä Träre</a><a class="toc-level-2" href="#6-servicio-y-caracter-sticas-gatt">6. Servicio y características GATT</a><a class="toc-level-2" href="#7-proceso-de-conexi-n-y-configuraci-n">7. Proceso de conexión y configuración</a><a class="toc-level-2" href="#8-simuladores-y-separaci-n-de-datos">8. Simuladores y separación de datos</a><a class="toc-level-2" href="#9-advertencias-de-bater-a">9. Advertencias de batería</a><a class="toc-level-2" href="#10-publicaci-n-y-reproducci-n">10. Publicación y reproducción</a><a class="toc-level-2" href="#11-evoluci-n-y-validaci-n">11. Evolución y validación</a><a class="toc-level-2" href="#12-seguridad-l-mites-y-mantenimiento">12. Seguridad, límites y mantenimiento</a><a class="toc-level-2" href="#13-referencias-de-reproducci-n">13. Referencias de reproducción</a><a class="toc-level-2" href="#aviso-de-responsabilidad-y-limitaciones-disclaimer">Aviso de responsabilidad y limitaciones (disclaimer)</a></nav></aside><main class="manual-content"><div class="manual-actions"><a href="../../index.html#documentacion">← Volver a manuales</a><a href="PulsoAlert_Manual_Tecnico_Web.md" download>Descargar Markdown</a></div><article class="markdown-body"><h1 id="manual-de-construcci-n-y-funcionamiento-pulsoalert-webble">Manual de construcción y funcionamiento — PulsoAlert WebBLE</h1>
+<p><strong>Fecha de creación documental:</strong> 10 de noviembre de 2026<br />
+<strong>Responsable:</strong> Ing. Harold Carvajal Álvarez<br />
+<strong>Institución:</strong> Fab Lab Kä Träre · Universidad Estatal a Distancia (UNED), Costa Rica<br />
+<strong>Firmware de referencia probado:</strong> PulsoAlert v1.5.3 (versión reportada para la documentación; las pruebas BLE descritas en el historial corresponden a las versiones allí indicadas)<br />
+<strong>Sitio web de referencia:</strong> PulsoAlert Web v0.5.6<br />
+<strong>Sitio publicado:</strong> <a href="https://fablabkatrare.github.io/PulsoAlertPage/">https://fablabkatrare.github.io/PulsoAlertPage/</a><br />
+<strong>Naturaleza del documento:</strong> Material técnico y educativo, versión documental 1.1</p>
+<h2 id="1-prop-sito-y-alcance">1. Propósito y alcance</h2>
+<p>Este documento describe la <strong>construcción del sitio web</strong>, su arquitectura, sus módulos, su protocolo BLE y la identidad visual aplicada. No sustituye el manual de cableado ni el sketch del firmware: esas áreas pertenecen a Hardware y Firmware. El producto es experimental y educativo, no médico.</p>
+<h2 id="2-arquitectura-general">2. Arquitectura general</h2>
+<p>La solución es una aplicación web estática desarrollada con <strong>HTML, CSS y JavaScript</strong>, publicada mediante <strong>GitHub Pages</strong> sobre HTTPS. El navegador ejecuta la interfaz y, cuando dispone de Web Bluetooth, actúa como cliente GATT. El ESP32-C3 actúa como periférico BLE y suministra telemetría; recibe cambios de configuración y los conserva en NVS según el contrato del firmware.</p>
+<p><strong>Flujo principal:</strong> MAX30102 y lógica del ESP32-C3 → característica <code>MEASUREMENT</code> → <code>bluetooth.js</code> → <code>app.js</code> → tarjetas HTML. <strong>Configuración:</strong> controles HTML → <code>app.js</code> → <code>bluetooth.js</code> → características GATT → ESP32-C3/NVS → <code>CONFIG_STATUS</code> y relectura → confirmación de la web.</p>
+<h2 id="3-archivos-de-la-versi-n-v0-5-6">3. Archivos de la versión v0.5.6</h2>
+<table>
+<thead>
+<tr>
+  <th>Archivo</th>
+  <th>Responsabilidad</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>index.html</code></td>
+  <td>Semántica de página, estructura de tarjetas, controles, botones y textos.</td>
+</tr>
+<tr>
+  <td><code>styles.css</code></td>
+  <td>Variables visuales, temas, tarjetas, rejillas y diseño responsivo.</td>
+</tr>
+<tr>
+  <td><code>app.js</code></td>
+  <td>Estado de UI, simulación, renderizado, configuración y advertencias de batería.</td>
+</tr>
+<tr>
+  <td><code>bluetooth.js</code></td>
+  <td>Conexión GATT, lectura de mediciones, escritura y confirmación.</td>
+</tr>
+<tr>
+  <td><code>assets/katrare-logo.png</code></td>
+  <td>Logotipo original dorado Kä Träre.</td>
+</tr>
+<tr>
+  <td><code>docs/*.md</code></td>
+  <td>Contratos BLE e historial de cambios.</td>
+</tr>
+<tr>
+  <td><code>README.md</code></td>
+  <td>Presentación y orientación del paquete.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Dependencias:</strong> no se observan frameworks JS ni librerías CSS externas en el <code>index.html</code> examinado. Se usan APIs nativas del navegador, incluida Web Bluetooth. No hay proceso de compilación de frontend ni gestor de paquetes exigido por los archivos disponibles.</p>
+<h2 id="4-estructura-de-la-interfaz">4. Estructura de la interfaz</h2>
+<p>La cabecera contiene el logotipo, nombre del producto y selector de tema. La introducción presenta el título y el panel de conexión. La rejilla <code>metrics</code> muestra tres tarjetas (BPM, batería, alerta). La rejilla <code>content-grid</code> contiene dos paneles: configuración y simulador. Una nota final advierte sobre el alcance experimental. Los IDs del HTML (<code>bpmValue</code>, <code>batteryValue</code>, <code>alertValue</code>, <code>threshold</code>, <code>cycles</code>, <code>ledMinutes</code>, etc.) son puntos de integración para <code>app.js</code>.</p>
+<p><img src="imagenes/captura_pagina_completa.png" alt="Captura real de la interfaz completa" /></p>
+<h2 id="5-identidad-visual-k-tr-re">5. Identidad visual Kä Träre</h2>
+<p>La línea visual aprobada utiliza <strong>fondo negro</strong>, tarjetas <strong>grafito azulado</strong>, bordes <strong>dorado tenue</strong>, acento <strong>amarillo dorado</strong>, tipografía clara y componentes sobrios. El logo debe reutilizarse desde <code>assets/katrare-logo.png</code>, sin redibujarlo ni cambiarlo por otra marca.</p>
+<table>
+<thead>
+<tr>
+  <th>Token / uso</th>
+  <th>Tema oscuro</th>
+  <th>Tema claro</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>Fondo</td>
+  <td><code>#000000</code></td>
+  <td><code>#F6F7F9</code></td>
+</tr>
+<tr>
+  <td>Tarjetas</td>
+  <td><code>#12171F</code></td>
+  <td><code>#FFFFFF</code></td>
+</tr>
+<tr>
+  <td>Texto</td>
+  <td><code>#F5F6F8</code></td>
+  <td><code>#11151B</code></td>
+</tr>
+<tr>
+  <td>Texto secundario</td>
+  <td><code>#B8BEC9</code></td>
+  <td><code>#59616E</code></td>
+</tr>
+<tr>
+  <td>Borde</td>
+  <td><code>#423A18</code></td>
+  <td><code>#E2E4E8</code></td>
+</tr>
+<tr>
+  <td>Acento principal</td>
+  <td><code>#FFCC00</code></td>
+  <td>Dorado de la identidad</td>
+</tr>
+<tr>
+  <td>Acción primaria</td>
+  <td><code>#FFCD4B</code></td>
+  <td>Dorado de la identidad</td>
+</tr>
+<tr>
+  <td>Éxito</td>
+  <td><code>#7DE0B0</code></td>
+  <td><code>#18784C</code></td>
+</tr>
+<tr>
+  <td>Advertencia</td>
+  <td><code>#FFCA4B</code></td>
+  <td><code>#A16A00</code></td>
+</tr>
+<tr>
+  <td>Peligro</td>
+  <td><code>#FF6972</code></td>
+  <td><code>#C82B37</code></td>
+</tr>
+</tbody>
+</table>
+<p>La tipografía CSS declarada es <code>system-ui, -apple-system, &quot;Segoe UI&quot;, Arial, sans-serif</code>; no se incluye una fuente web externa. La jerarquía usa títulos de panel de aproximadamente 22 px y peso 800, valores BPM de 48 px en escritorio, etiquetas pequeñas en mayúsculas con espaciado, y textos de ayuda compactos. Las tarjetas usan radio aproximado de 13 px y no dependen de sombras decorativas. El contenedor máximo es de 1170 px; las tarjetas forman tres columnas y los paneles inferiores dos (<code>1.15fr 1fr</code>). Existen ajustes responsivos a 850, 650 y 520 px. El tema claro se implementa mediante <code>body.light-theme</code>, <strong>sin sustituir la hoja CSS estructural</strong>.</p>
+<p><img src="imagenes/captura_tarjetas.png" alt="Detalle de tarjetas y diseño visual" /></p>
+<h2 id="6-servicio-y-caracter-sticas-gatt">6. Servicio y características GATT</h2>
+<p><strong>Nombre anunciado:</strong> <code>PulsoAlert</code><br />
+<strong>Servicio:</strong> <code>f0a10000-7b4d-4c6a-9e20-3b8c8f100001</code></p>
+<table>
+<thead>
+<tr>
+  <th>Característica</th>
+  <th>UUID</th>
+  <th>Tipo / operación</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>MEASUREMENT</td>
+  <td><code>f0a10001-7b4d-4c6a-9e20-3b8c8f100001</code></td>
+  <td>Read, Notify; 6 u 8 bytes</td>
+</tr>
+<tr>
+  <td>BPM_THRESHOLD</td>
+  <td><code>f0a10002-7b4d-4c6a-9e20-3b8c8f100001</code></td>
+  <td>Read, Write; uint16 LE</td>
+</tr>
+<tr>
+  <td>VIBRATION_CYCLES</td>
+  <td><code>f0a10003-7b4d-4c6a-9e20-3b8c8f100001</code></td>
+  <td>Read, Write; uint8</td>
+</tr>
+<tr>
+  <td>LED_DURATION</td>
+  <td><code>f0a10004-7b4d-4c6a-9e20-3b8c8f100001</code></td>
+  <td>Read, Write; uint16 LE, minutos</td>
+</tr>
+<tr>
+  <td>CONFIG_STATUS</td>
+  <td><code>f0a10005-7b4d-4c6a-9e20-3b8c8f100001</code></td>
+  <td>Read, Notify; 4 bytes</td>
+</tr>
+</tbody>
+</table>
+<p><code>MEASUREMENT</code> utiliza bytes 0–1 BPM (uint16 LE), 2 contacto (0/1), 3 porcentaje de batería (255 = desconocido), 4 alerta (0/1), 5 estado de medición (0 esperando, 1 midiendo, 2 señal inválida). En GATT v1.1 los bytes 6–7 representan voltaje en mV (uint16 LE; 0 = no disponible). La web admite paquetes de 6 y 8 bytes. <strong>No convierte voltaje a porcentaje sin calibración.</strong></p>
+<p><code>CONFIG_STATUS</code>: byte 0 código (0 inicial, 1 guardado, 2 inválido, 3 error NVS); byte 1 parámetro (0 ninguno, 1 umbral, 2 ciclos, 3 LED); bytes 2–3 valor vigente (uint16 LE).</p>
+<h2 id="7-proceso-de-conexi-n-y-configuraci-n">7. Proceso de conexión y configuración</h2>
+<p><code>bluetooth.js</code> solicita un dispositivo mediante <code>navigator.bluetooth.requestDevice</code> filtrando el servicio PulsoAlert. Tras conectar GATT obtiene las cinco características, se suscribe a notificaciones de medición y estado, lee parámetros y obtiene una medición inicial. El navegador requiere HTTPS y un gesto del usuario para iniciar la búsqueda.</p>
+<p>Para guardar parámetros, <code>applySettings()</code> valida rangos (30–120 BPM, 1–5 ciclos, 1–10 minutos), escribe <strong>secuencialmente</strong>, espera <code>CONFIG_STATUS</code> (hasta 15 intentos con pausa de 200 ms) y relee la característica. Solo entonces la web considera el valor confirmado. No hay transacción atómica entre los tres parámetros. El firmware es responsable de la persistencia NVS.</p>
+<h2 id="8-simuladores-y-separaci-n-de-datos">8. Simuladores y separación de datos</h2>
+<p><code>app.js</code> mantiene escenarios de frecuencia cardíaca <strong>Normal, FC baja, Alerta y Sin contacto</strong> y escenarios de batería <strong>Normal, Recargar pronto, Muy baja y Crítica</strong>. Son pruebas visuales; no envían comandos al hardware. Cuando existe BLE conectado, se prioriza telemetría real. Tras desconexión, se ocultan mediciones antiguas; seleccionar un escenario vuelve al modo demostración. El estado de tema claro/oscuro se aplica sin reconstruir la estructura HTML.</p>
+<p><img src="imagenes/captura_simuladores.png" alt="Paneles de configuración y simulación" /></p>
+<h2 id="9-advertencias-de-bater-a">9. Advertencias de batería</h2>
+<p>La web recibe milivoltios y muestra voltios. El código v0.5.6 utiliza clasificación de estados, mediana de hasta cinco lecturas, confirmación de tres lecturas filtradas y una histéresis de 80 mV. Los umbrales documentados son orientativos: &gt;3,60 V normal; 3,40–3,60 V recarga; 3,20–&lt;3,40 V muy baja; &lt;=3,20 V crítica. <strong>La advertencia web no es una desconexión eléctrica ni un sistema de protección autónomo.</strong> La placa de protección de la batería y el firmware deben tratarse en la documentación correspondiente.</p>
+<h2 id="10-publicaci-n-y-reproducci-n">10. Publicación y reproducción</h2>
+<ol>
+<li>Obtenga el <strong>ZIP original v0.5.6</strong>; descomprímalo sin modificar nombres ni estructura.</li>
+<li>Mantenga <code>index.html</code>, <code>styles.css</code>, <code>app.js</code>, <code>bluetooth.js</code> y las carpetas <code>assets/</code> y <code>docs/</code> en la raíz del repositorio.</li>
+<li>Publique mediante GitHub Pages con la rama <code>main</code> y carpeta raíz <code>/</code>, según la configuración del repositorio.</li>
+<li>Compruebe que <code>index.html</code> carga CSS y JS por rutas relativas y que el logotipo se muestra.</li>
+<li>Abra la URL HTTPS, pruebe selector de tema y simuladores sin hardware.</li>
+<li>Con un ESP32-C3 que implemente el contrato GATT, pruebe conexión, medición, configuración, reinicio y relectura.</li>
+<li>Verifique la presentación en Windows y Android compatibles; la disponibilidad Web Bluetooth varía por plataforma.</li>
+</ol>
+<p>No se requiere un backend, base de datos ni compilador frontend. Para pruebas locales, un servidor HTTP simple puede mostrar la interfaz, pero el acceso a BLE requiere un contexto seguro compatible.</p>
+<h2 id="11-evoluci-n-y-validaci-n">11. Evolución y validación</h2>
+<table>
+<thead>
+<tr>
+  <th>Versión</th>
+  <th>Cambio relevante</th>
+  <th>Evidencia en conversación</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>v0.4.1</td>
+  <td>Base visual Kä Träre aprobada</td>
+  <td>Diseño y simulador aprobados</td>
+</tr>
+<tr>
+  <td>v0.5.0</td>
+  <td>Preparación de BLE</td>
+  <td>Paquete entregado; conexión real posterior</td>
+</tr>
+<tr>
+  <td>v0.5.1</td>
+  <td>GATT v1.1, voltaje y configuración</td>
+  <td>Usuario confirmó BLE, lectura, envío y persistencia tras reinicio</td>
+</tr>
+<tr>
+  <td>v0.5.2</td>
+  <td>Estados y desconexión</td>
+  <td>Problema del simulador tras desconectar</td>
+</tr>
+<tr>
+  <td>v0.5.3</td>
+  <td>Retorno al simulador</td>
+  <td>Corrección implementada; validación integral no confirmada</td>
+</tr>
+<tr>
+  <td>v0.5.4</td>
+  <td>Limpieza de mensajes</td>
+  <td>Paquete entregado; validación final no confirmada</td>
+</tr>
+<tr>
+  <td>v0.5.5</td>
+  <td>Advertencias de batería</td>
+  <td>Implementadas; umbrales físicos pendientes de validar</td>
+</tr>
+<tr>
+  <td>v0.5.6</td>
+  <td>Simulador de batería</td>
+  <td>Entregado; prueba final no confirmada</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Incidencia histórica resuelta:</strong> el error «Medición BLE con longitud incorrecta» se abordó aceptando longitudes de 6 y 8 bytes. <strong>Pendiente:</strong> ensayos sistemáticos de reconexión, pruebas cruzadas de navegadores, calibración de batería y validación integral de v0.5.6.</p>
+<h2 id="12-seguridad-l-mites-y-mantenimiento">12. Seguridad, límites y mantenimiento</h2>
+<p>El sitio no autentica al periférico BLE según el contrato disponible; utilizarlo en entornos educativos controlados. No exponer el prototipo como dispositivo clínico. Mantener separados datos reales y simulados. Registrar versiones de firmware y web durante las pruebas. Si se modifican UUID o formatos binarios, actualizar conjuntamente firmware, <code>bluetooth.js</code>, contratos y manuales. Para conservar el diseño, realizar cambios puntuales en CSS y nunca reemplazar <code>styles.css</code> por una plantilla genérica.</p>
+<h2 id="13-referencias-de-reproducci-n">13. Referencias de reproducción</h2>
+<ul>
+<li>Código real: <code>PulsoAlert_Web_v0.5.6_Ka_Trare.zip</code> (paquete original de esta conversación).</li>
+<li>Contratos: <code>docs/PulsoAlert_Contrato_BLE_v1.0.md</code> y <code>docs/PulsoAlert_Contrato_BLE_v1.1.md</code>.</li>
+<li>Guía visual: <code>PulsoAlert_Guia_Identidad_Visual_Ka_Trare.md</code>.</li>
+<li>Sitio: <a href="https://fablabkatrare.github.io/PulsoAlertPage/">https://fablabkatrare.github.io/PulsoAlertPage/</a></li>
+<li>Las capturas insertadas son fotografías digitales de la interfaz proporcionadas por el usuario, no mockups generados.</li>
+</ul>
+<h2 id="aviso-de-responsabilidad-y-limitaciones-disclaimer">Aviso de responsabilidad y limitaciones (disclaimer)</h2>
+<p>PulsoAlert es un <strong>prototipo experimental y educativo</strong> desarrollado en el Fab Lab Kä Träre de la UNED. No es un dispositivo médico, no cuenta con certificación sanitaria y no está destinado a diagnosticar, prevenir, tratar ni monitorizar clínicamente enfermedades. Las mediciones de frecuencia cardíaca pueden presentar errores por movimiento, colocación del sensor, calidad de contacto y condiciones ambientales; no deben emplearse para tomar decisiones médicas ni sustituir equipos clínicos.</p>
+<p>Los valores del simulador son ficticios y no representan mediciones de una persona. Los umbrales de batería son orientativos y requieren validación con la celda, el circuito de protección y las condiciones reales de funcionamiento. Las advertencias de la página web no sustituyen los mecanismos físicos de protección ni garantizan el apagado del dispositivo.</p>
+<p>La reproducción y utilización del prototipo requieren supervisión adecuada, prácticas seguras de manipulación de baterías LiPo y verificación de conexiones y polaridades. Las características de Bluetooth dependen de la compatibilidad del navegador, el sistema operativo y el firmware. La documentación describe el estado disponible al 10 de noviembre de 2026 y no constituye garantía de funcionamiento para otras configuraciones.</p>
+</article><div class="manual-actions"><a href="../../index.html#documentacion">← Volver a PulsoAlert</a></div></main></div><script src="../../manual-viewer.js?v=0.5.7"></script></body></html>

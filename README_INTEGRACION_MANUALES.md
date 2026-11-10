@@ -1,10 +1,9 @@
-# Integración de documentación — PulsoAlert Web v0.5.6
+# Integración de documentación — PulsoAlert Web v0.5.7
 
-Se agregó una sección «Documentación y manuales» al final del contenido principal, antes del aviso educativo.
+La biblioteca contiene cinco manuales en PDF, Markdown y HTML de lectura. Los HTML se generaron de los Markdown sin alterar sus fuentes.
 
-- Sin cambios en `app.js`, `bluetooth.js` ni en los controles BLE.
-- Se conservan los archivos originales de la web y su diseño; únicamente se agregó HTML y CSS aislado.
-- Los PDF y archivos Markdown están en `manuales/web`, `manuales/firmware` y `manuales/hardware`.
-- Para publicar en GitHub Pages, copiar todo el contenido de esta carpeta al repositorio, manteniendo las rutas relativas.
-- Verificar los enlaces y los temas claro/oscuro después del despliegue.
-- Esta integración no cambia la versión funcional v0.5.6; es una ampliación documental.
+Los archivos `app.js` y `bluetooth.js` conservan su lógica anterior; solo se actualizaron parámetros de versión en las referencias del HTML para evitar caché. Se agregó un visor documental independiente (`manual-viewer.css` y `manual-viewer.js`).
+
+Firmware probado de referencia: v1.5.3. Sitio web: v0.5.7. Las menciones a versiones anteriores en documentos históricos se conservan como referencias de época.
+
+Validación de BLE con hardware y revisión visual en navegador: pendientes.

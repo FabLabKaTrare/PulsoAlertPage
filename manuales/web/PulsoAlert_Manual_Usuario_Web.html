@@ -1,0 +1,115 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="dark light"><title>Manual de usuario — PulsoAlert Web | PulsoAlert</title><link rel="stylesheet" href="../../manual-viewer.css?v=0.5.7"></head><body><header class="manual-header"><div class="manual-header-inner"><a href="../../index.html#documentacion"><img src="../../assets/katrare-logo.png" alt="Kä Träre · FabLab"></a><span>PulsoAlert · Documentación v0.5.7</span><button type="button" id="manualTheme" aria-label="Cambiar tema">◐ Tema</button></div></header><div class="manual-layout"><aside class="manual-toc"><strong>Contenido</strong><nav aria-label="Índice del documento"><a class="toc-level-1" href="#manual-de-usuario-pulsoalert-web">Manual de usuario — PulsoAlert Web</a><a class="toc-level-2" href="#1-presentaci-n-y-alcance">1. Presentación y alcance</a><a class="toc-level-2" href="#2-conocer-la-pantalla">2. Conocer la pantalla</a><a class="toc-level-2" href="#3-requisitos-antes-de-empezar">3. Requisitos antes de empezar</a><a class="toc-level-2" href="#4-operar-sin-pulsera-modo-demostraci-n">4. Operar sin pulsera: modo demostración</a><a class="toc-level-2" href="#5-conectar-el-esp32-c3-por-ble">5. Conectar el ESP32-C3 por BLE</a><a class="toc-level-2" href="#6-interpretar-las-tres-tarjetas">6. Interpretar las tres tarjetas</a><a class="toc-level-2" href="#7-alertas-de-bater-a">7. Alertas de batería</a><a class="toc-level-2" href="#8-configurar-par-metros-de-alerta">8. Configurar parámetros de alerta</a><a class="toc-level-2" href="#9-desconexi-n-y-regreso-al-simulador">9. Desconexión y regreso al simulador</a><a class="toc-level-2" href="#10-tema-visual-y-uso-m-vil">10. Tema visual y uso móvil</a><a class="toc-level-2" href="#11-problemas-frecuentes">11. Problemas frecuentes</a><a class="toc-level-2" href="#12-pr-cticas-sugeridas">12. Prácticas sugeridas</a><a class="toc-level-2" href="#13-estado-de-validaci-n">13. Estado de validación</a><a class="toc-level-2" href="#aviso-de-responsabilidad-y-limitaciones-disclaimer">Aviso de responsabilidad y limitaciones (disclaimer)</a></nav></aside><main class="manual-content"><div class="manual-actions"><a href="../../index.html#documentacion">← Volver a manuales</a><a href="PulsoAlert_Manual_Usuario_Web.md" download>Descargar Markdown</a></div><article class="markdown-body"><h1 id="manual-de-usuario-pulsoalert-web">Manual de usuario — PulsoAlert Web</h1>
+<p><strong>Fecha de creación documental:</strong> 10 de noviembre de 2026<br />
+<strong>Responsable:</strong> Ing. Harold Carvajal Álvarez<br />
+<strong>Institución:</strong> Fab Lab Kä Träre · Universidad Estatal a Distancia (UNED), Costa Rica<br />
+<strong>Firmware de referencia probado:</strong> PulsoAlert v1.5.3 (versión reportada para la documentación; las pruebas BLE descritas en el historial corresponden a las versiones allí indicadas)<br />
+<strong>Sitio web de referencia:</strong> PulsoAlert Web v0.5.6<br />
+<strong>Sitio publicado:</strong> <a href="https://fablabkatrare.github.io/PulsoAlertPage/">https://fablabkatrare.github.io/PulsoAlertPage/</a><br />
+<strong>Naturaleza del documento:</strong> Material técnico y educativo, versión documental 1.1</p>
+<h2 id="1-presentaci-n-y-alcance">1. Presentación y alcance</h2>
+<p>PulsoAlert Web es la interfaz de un prototipo educativo de monitoreo experimental de frecuencia cardíaca con ESP32-C3 y sensor MAX30102. Permite observar BPM, contacto con la piel, batería y alertas; también permite configurar ciertos parámetros mediante Bluetooth Low Energy (BLE). <strong>No es un dispositivo médico, no diagnostica y no debe emplearse para decisiones clínicas.</strong></p>
+<p>La página puede utilizarse en <strong>modo demostración</strong>, con valores ficticios, o en <strong>modo conectado</strong>, con información transmitida por el prototipo. Los datos simulados siempre deben interpretarse como ejemplos.</p>
+<h2 id="2-conocer-la-pantalla">2. Conocer la pantalla</h2>
+<p>La cabecera presenta el logotipo Kä Träre, el nombre PulsoAlert y el selector de tema. Debajo se encuentran el título, el estado de conexión y el botón <strong>Conectar BLE</strong>. Tres tarjetas muestran <strong>Frecuencia cardíaca</strong>, <strong>Batería</strong> y <strong>Estado de alerta</strong>. En la zona inferior aparecen <strong>Parámetros de alerta</strong> y <strong>Simulador de estados</strong>. Al final se incluye la advertencia educativa.</p>
+<p><img src="imagenes/captura_pagina_completa.png" alt="Pantalla principal real de PulsoAlert Web" /></p>
+<h2 id="3-requisitos-antes-de-empezar">3. Requisitos antes de empezar</h2>
+<ul>
+<li>Abrir la dirección del sitio con HTTPS en un navegador que admita Web Bluetooth; la compatibilidad depende del navegador y dispositivo. En equipos compatibles, usar Chrome o Edge actualizados.</li>
+<li>Activar Bluetooth en el equipo y encender el prototipo con firmware BLE compatible.</li>
+<li>Permitir la selección del dispositivo cuando el navegador lo solicite. El navegador requiere una acción explícita del usuario para iniciar la búsqueda.</li>
+<li>La página es estática: no exige instalar una aplicación Android ni crear una cuenta. Para utilizar BLE es necesario disponer del dispositivo físico.</li>
+</ul>
+<h2 id="4-operar-sin-pulsera-modo-demostraci-n">4. Operar sin pulsera: modo demostración</h2>
+<ol>
+<li>Abra el sitio; confirme el texto <strong>Modo demostración</strong> y la advertencia de datos simulados.</li>
+<li>En <strong>Simulador de estados</strong>, seleccione <strong>Normal</strong>, <strong>FC baja</strong>, <strong>Alerta</strong> o <strong>Sin contacto</strong>.</li>
+<li>Observe cómo cambian la frecuencia cardíaca, el estado de contacto y la tarjeta de alerta.</li>
+<li>En <strong>Simulador de batería</strong>, seleccione <strong>Normal</strong>, <strong>Recargar pronto</strong>, <strong>Muy baja</strong> o <strong>Crítica</strong>; la tarjeta Batería muestra voltajes ficticios y advertencias.</li>
+<li>Puede combinar un escenario de frecuencia cardíaca con otro de batería. Ningún botón del simulador controla el hardware.</li>
+</ol>
+<p><img src="imagenes/captura_simuladores.png" alt="Simulador de frecuencia cardíaca y batería" /></p>
+<h2 id="5-conectar-el-esp32-c3-por-ble">5. Conectar el ESP32-C3 por BLE</h2>
+<ol>
+<li>Encienda el ESP32-C3 y manténgalo próximo al equipo.</li>
+<li>Pulse <strong>Conectar BLE</strong>.</li>
+<li>En el selector del navegador, elija el dispositivo <strong>PulsoAlert</strong> y autorice la conexión.</li>
+<li>Espere a que el estado indique conexión. Las tarjetas empezarán a mostrar datos del ESP32-C3.</li>
+<li>Compruebe que el voltaje mostrado es una lectura real. La ausencia de contacto o de medición válida puede impedir mostrar BPM útiles.</li>
+</ol>
+<p><strong>Si no aparece el dispositivo:</strong> revise alimentación, Bluetooth, permisos, navegador compatible y que el firmware anuncie el servicio GATT de PulsoAlert. No asuma que cualquier navegador admite Web Bluetooth.</p>
+<h2 id="6-interpretar-las-tres-tarjetas">6. Interpretar las tres tarjetas</h2>
+<p><strong>Frecuencia cardíaca:</strong> muestra BPM cuando la señal es válida. El texto inferior indica el estado de contacto. Un BPM igual a cero o un estado de señal inválida no representa necesariamente una frecuencia real.</p>
+<p><strong>Batería:</strong> muestra el voltaje medido en voltios cuando el firmware transmite los bytes adicionales del contrato GATT v1.1. Con paquetes antiguos de 6 bytes puede no haber voltaje disponible. No se deduce porcentaje de carga a partir del voltaje sin calibración.</p>
+<p><strong>Estado de alerta:</strong> indica si el firmware informa una alerta. La vibración y el LED son acciones físicas del dispositivo; la web solo refleja su estado.</p>
+<p><img src="imagenes/captura_tarjetas.png" alt="Tarjetas de medición y alerta" /></p>
+<h2 id="7-alertas-de-bater-a">7. Alertas de batería</h2>
+<p>Los estados de la web utilizan umbrales <strong>experimentales</strong>, sujetos a validación con la batería real: por encima de 3,60 V, normal; de 3,40 a 3,60 V, recargar pronto; de 3,20 a menos de 3,40 V, batería muy baja, recargar o apagar; a 3,20 V o menos, batería crítica, apagar. El algoritmo filtra fluctuaciones breves mediante una ventana de lecturas, confirmaciones e histéresis.</p>
+<p><strong>Importante:</strong> el aviso en el navegador no desconecta físicamente la batería ni sustituye la placa de protección. Si aparece una advertencia crítica, deje de utilizar el prototipo y recárguelo con el sistema de carga adecuado. No cargue una celda dañada, hinchada o excesivamente caliente.</p>
+<h2 id="8-configurar-par-metros-de-alerta">8. Configurar parámetros de alerta</h2>
+<p>Los controles permiten ajustar <strong>umbral de frecuencia cardíaca</strong> (30–120 BPM), <strong>ciclos de vibración</strong> (1–5) y <strong>duración del parpadeo LED</strong> (1–10 minutos). Valores iniciales mostrados en la interfaz: 50 BPM, 3 ciclos y 2 minutos.</p>
+<ol>
+<li>Con BLE conectado, desplace los tres controles al valor deseado.</li>
+<li>Pulse el botón de aplicación de configuración.</li>
+<li>Espere la confirmación <strong>«Configuración guardada correctamente»</strong>. La web escribe un parámetro por vez, comprueba <code>CONFIG_STATUS</code> y relee el valor del dispositivo.</li>
+<li>Si aparece un error, revise la conexión y repita la operación. No dé por guardados los cambios sin confirmación.</li>
+<li>Para verificar persistencia, reinicie el ESP32-C3, vuelva a conectar y compruebe que recupera los valores elegidos.</li>
+</ol>
+<p><strong>Sin BLE:</strong> el botón <strong>Aplicar a demostración</strong> afecta solo a la interfaz simulada. <strong>Restablecer</strong> debe interpretarse según el modo y el mensaje mostrado; antes de actuar sobre un dispositivo real compruebe qué valores presenta la web.</p>
+<p><img src="imagenes/captura_configuracion.png" alt="Controles de configuración" /></p>
+<h2 id="9-desconexi-n-y-regreso-al-simulador">9. Desconexión y regreso al simulador</h2>
+<p>Cuando se pierde BLE, la web oculta las mediciones reales anteriores para que no parezcan actuales. Para volver a conectar, pulse <strong>Conectar BLE</strong>. Para utilizar el simulador después de una desconexión, seleccione un escenario de frecuencia cardíaca o batería. Mientras BLE esté conectado, el simulador no reemplaza los datos reales.</p>
+<h2 id="10-tema-visual-y-uso-m-vil">10. Tema visual y uso móvil</h2>
+<p>El interruptor de la cabecera cambia entre tema oscuro y claro. El tema oscuro usa negro, grafito y acentos dorados; el claro mantiene la estructura con superficies claras. En pantallas estrechas, las tarjetas y paneles se reorganizan en una sola columna. La disponibilidad de BLE en móviles depende del navegador y del sistema.</p>
+<h2 id="11-problemas-frecuentes">11. Problemas frecuentes</h2>
+<table>
+<thead>
+<tr>
+  <th>Síntoma</th>
+  <th>Qué comprobar</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>No aparece PulsoAlert en la búsqueda</td>
+  <td>ESP encendido, firmware BLE, Bluetooth y permisos del navegador.</td>
+</tr>
+<tr>
+  <td>«Medición BLE con longitud incorrecta»</td>
+  <td>Actualizar la web; debe aceptar 6 u 8 bytes.</td>
+</tr>
+<tr>
+  <td>Los controles cambian pero no se guardan</td>
+  <td>Confirmar que BLE está conectado, aplicar y esperar confirmación.</td>
+</tr>
+<tr>
+  <td>Después de desconectar no hay BPM</td>
+  <td>Es intencional: se ocultan mediciones obsoletas.</td>
+</tr>
+<tr>
+  <td>Simulador no responde con BLE conectado</td>
+  <td>Es intencional: se priorizan mediciones reales.</td>
+</tr>
+<tr>
+  <td>No aparece voltaje</td>
+  <td>Revisar firmware GATT v1.1 y conexión; 6 bytes no incluyen milivoltios.</td>
+</tr>
+<tr>
+  <td>El sitio parece antiguo</td>
+  <td>Recargar forzadamente y verificar publicación de GitHub Pages.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="12-pr-cticas-sugeridas">12. Prácticas sugeridas</h2>
+<ul>
+<li>Cambiar entre Normal, FC baja, Alerta y Sin contacto y explicar la diferencia entre estado y medición.</li>
+<li>Comparar los cuatro estados de batería sin conectar la pulsera.</li>
+<li>Ajustar umbral, ciclos y duración en modo demostración; describir qué cambió visualmente.</li>
+<li>Con BLE, enviar un parámetro, reiniciar y verificar su recuperación. Realizar la prueba únicamente bajo supervisión y con el prototipo en condiciones seguras.</li>
+</ul>
+<h2 id="13-estado-de-validaci-n">13. Estado de validación</h2>
+<p><strong>Validación registrada:</strong> conexión BLE, recepción de BPM, lectura del voltaje, envío de configuración y persistencia NVS en v0.5.1; simulador de estados y tema visual en versiones previas. <strong>Implementado sin validación final confirmada:</strong> simulador de batería de v0.5.6 y su funcionamiento integral en todos los navegadores. <strong>No verificado:</strong> exactitud clínica del sensor, autonomía y protección autónoma de batería.</p>
+<h2 id="aviso-de-responsabilidad-y-limitaciones-disclaimer">Aviso de responsabilidad y limitaciones (disclaimer)</h2>
+<p>PulsoAlert es un <strong>prototipo experimental y educativo</strong> desarrollado en el Fab Lab Kä Träre de la UNED. No es un dispositivo médico, no cuenta con certificación sanitaria y no está destinado a diagnosticar, prevenir, tratar ni monitorizar clínicamente enfermedades. Las mediciones de frecuencia cardíaca pueden presentar errores por movimiento, colocación del sensor, calidad de contacto y condiciones ambientales; no deben emplearse para tomar decisiones médicas ni sustituir equipos clínicos.</p>
+<p>Los valores del simulador son ficticios y no representan mediciones de una persona. Los umbrales de batería son orientativos y requieren validación con la celda, el circuito de protección y las condiciones reales de funcionamiento. Las advertencias de la página web no sustituyen los mecanismos físicos de protección ni garantizan el apagado del dispositivo.</p>
+<p>La reproducción y utilización del prototipo requieren supervisión adecuada, prácticas seguras de manipulación de baterías LiPo y verificación de conexiones y polaridades. Las características de Bluetooth dependen de la compatibilidad del navegador, el sistema operativo y el firmware. La documentación describe el estado disponible al 10 de noviembre de 2026 y no constituye garantía de funcionamiento para otras configuraciones.</p>
+</article><div class="manual-actions"><a href="../../index.html#documentacion">← Volver a PulsoAlert</a></div></main></div><script src="../../manual-viewer.js?v=0.5.7"></script></body></html>

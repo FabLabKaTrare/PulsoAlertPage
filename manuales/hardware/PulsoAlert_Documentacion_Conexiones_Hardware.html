@@ -1,0 +1,187 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="dark light"><title>PulsoAlert — Construcción y conexiones del circuito electrónico | PulsoAlert</title><link rel="stylesheet" href="../../manual-viewer.css?v=0.5.7"></head><body><header class="manual-header"><div class="manual-header-inner"><a href="../../index.html#documentacion"><img src="../../assets/katrare-logo.png" alt="Kä Träre · FabLab"></a><span>PulsoAlert · Documentación v0.5.7</span><button type="button" id="manualTheme" aria-label="Cambiar tema">◐ Tema</button></div></header><div class="manual-layout"><aside class="manual-toc"><strong>Contenido</strong><nav aria-label="Índice del documento"><a class="toc-level-1" href="#pulsoalert-construcci-n-y-conexiones-del-circuito-electr-nico">PulsoAlert — Construcción y conexiones del circuito electrónico</a><a class="toc-level-2" href="#1-prop-sito-y-alcance">1. Propósito y alcance</a><a class="toc-level-2" href="#2-componentes-empleados">2. Componentes empleados</a><a class="toc-level-2" href="#3-arquitectura-del-circuito">3. Arquitectura del circuito</a><a class="toc-level-2" href="#4-conexiones-realizadas">4. Conexiones realizadas</a><a class="toc-level-2" href="#5-alimentaci-n-mediante-bater-a-desmontable">5. Alimentación mediante batería desmontable</a><a class="toc-level-2" href="#6-medici-n-del-voltaje-de-bater-a">6. Medición del voltaje de batería</a><a class="toc-level-2" href="#7-medici-n-de-frecuencia-card-aca-por-i-c">7. Medición de frecuencia cardíaca por I²C</a><a class="toc-level-2" href="#8-se-alizaci-n-y-alerta">8. Señalización y alerta</a><a class="toc-level-2" href="#9-carga-de-la-bater-a-y-protecci-n">9. Carga de la batería y protección</a><a class="toc-level-2" href="#10-procedimiento-de-reproducci-n-y-pruebas">10. Procedimiento de reproducción y pruebas</a><a class="toc-level-2" href="#11-resultados-verificados-y-pendientes">11. Resultados verificados y pendientes</a><a class="toc-level-2" href="#12-material-fotogr-fico-y-referencias-del-proyecto">12. Material fotográfico y referencias del proyecto</a><a class="toc-level-2" href="#13-descargo-de-responsabilidad-disclaimer">13. Descargo de responsabilidad (disclaimer)</a></nav></aside><main class="manual-content"><div class="manual-actions"><a href="../../index.html#documentacion">← Volver a manuales</a><a href="PulsoAlert_Documentacion_Conexiones_Hardware.md" download>Descargar Markdown</a></div><article class="markdown-body"><h1 id="pulsoalert-construcci-n-y-conexiones-del-circuito-electr-nico">PulsoAlert — Construcción y conexiones del circuito electrónico</h1>
+<p><strong>FabLab Kä Träre · UNED, Costa Rica</strong><br />
+<strong>Área:</strong> Hardware · <strong>Documento de reproducción del prototipo experimental</strong><br />
+<strong>Alcance:</strong> montaje implementado, principio de funcionamiento, comprobaciones y aspectos pendientes de validación eléctrica.</p>
+<p><strong>Fecha de creación de esta edición:</strong> 10 de noviembre de 2026<br />
+<strong>Responsable:</strong> Ing. Harold Carvajal Álvarez<br />
+<strong>Laboratorio:</strong> Fab Lab Kä Träre · UNED, Costa Rica<br />
+<strong>Firmware de referencia probado:</strong> v1.5.3<br />
+<strong>Sitio web de referencia:</strong> v0.5.6<br />
+<strong>Sitio del proyecto:</strong> <a href="https://fablabkatrare.github.io/PulsoAlertPage/">https://fablabkatrare.github.io/PulsoAlertPage/</a><br />
+<strong>Versión del documento:</strong> 1.1 (actualización de referencias y descargo de responsabilidad)</p>
+<h2 id="1-prop-sito-y-alcance">1. Propósito y alcance</h2>
+<p>PulsoAlert es una pulsera experimental destinada a explorar la medición óptica de la frecuencia cardíaca, la lectura de batería y la generación de avisos mediante una pantalla OLED, un LED y un motor de vibración. Se construyó con una placa ESP32-C3 con pantalla OLED integrada, un módulo MAX30102, un módulo de vibración con circuito controlador y una batería LiPo desmontable. El prototipo es educativo y <strong>no constituye un dispositivo médico</strong>.</p>
+<p>El presente documento describe el circuito <strong>tal como fue montado y probado</strong>. Se diferencia el funcionamiento observado de la validación de seguridad eléctrica: que el equipo haya funcionado no demuestra que todas las tensiones y corrientes estén dentro de las especificaciones de cada placa.</p>
+<h2 id="2-componentes-empleados">2. Componentes empleados</h2>
+<table>
+<thead>
+<tr>
+  <th>Componente</th>
+  <th>Función en el prototipo</th>
+  <th>Evidencia</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>ESP32-C3 OLED Development Board 0,42″</td>
+  <td>Procesamiento, lectura ADC, bus I²C, control de alertas y pantalla OLED integrada</td>
+  <td>Fotografía y pinout aportados; GPIO probados</td>
+</tr>
+<tr>
+  <td>MAX30102 en módulo</td>
+  <td>Captura de señal óptica pulsátil</td>
+  <td>Fotografía aportada; lectura de BPM probada</td>
+</tr>
+<tr>
+  <td>Módulo de motor vibrador con driver</td>
+  <td>Aviso háptico controlado desde GPIO4</td>
+  <td>Fotografía aportada; vibración probada</td>
+</tr>
+<tr>
+  <td>Batería LiPo 3,7 V nominales, 150 mAh</td>
+  <td>Alimentación autónoma</td>
+  <td>Montaje y medición de voltaje reportados</td>
+</tr>
+<tr>
+  <td>Conectores JST-PH macho/hembra</td>
+  <td>Desconexión de batería para uso y carga</td>
+  <td>Disposición de conexión confirmada</td>
+</tr>
+<tr>
+  <td>Cargador USB separado</td>
+  <td>Carga de la LiPo fuera de la pulsera</td>
+  <td>Fotografía aportada; corriente de carga sin verificar</td>
+</tr>
+<tr>
+  <td>Resistencias 100 kΩ + 100 kΩ</td>
+  <td>Divisor de tensión para el ADC GPIO0</td>
+  <td>Lectura contrastada con multímetro</td>
+</tr>
+</tbody>
+</table>
+<h2 id="3-arquitectura-del-circuito">3. Arquitectura del circuito</h2>
+<p>La placa ESP32-C3 coordina tres subsistemas: adquisición de pulso por I²C, presentación y señalización de estados, y supervisión del voltaje de la batería. El MAX30102 comparte el bus I²C con la pantalla OLED integrada. El motor no se conecta directamente al GPIO: se utiliza el circuito controlador de su módulo. El LED de estado forma parte de la propia placa ESP32-C3.</p>
+<p><strong>Figura 1. Diagrama de interconexión externa del montaje.</strong> El esquema vectorial incluido muestra las conexiones del prototipo. No representa ni certifica los circuitos internos de las placas comerciales; por ello, no debe interpretarse como un esquemático de fabricación validado.</p>
+<p><img src="PulsoAlert_Diagrama_Electronico_Conexiones.svg" alt="Diagrama de interconexiones" /></p>
+<h2 id="4-conexiones-realizadas">4. Conexiones realizadas</h2>
+<table>
+<thead>
+<tr>
+  <th>Origen</th>
+  <th>Destino</th>
+  <th>Función</th>
+  <th>Estado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>ESP32-C3 GPIO5</td>
+  <td>MAX30102 SDA</td>
+  <td>Datos I²C</td>
+  <td>Implementado y probado</td>
+</tr>
+<tr>
+  <td>ESP32-C3 GPIO6</td>
+  <td>MAX30102 SCL</td>
+  <td>Reloj I²C</td>
+  <td>Implementado y probado</td>
+</tr>
+<tr>
+  <td>ESP32-C3 GPIO4</td>
+  <td>Entrada de control del módulo vibrador</td>
+  <td>Activación del motor mediante driver</td>
+  <td>Implementado y probado</td>
+</tr>
+<tr>
+  <td>ESP32-C3 GPIO8</td>
+  <td>LED integrado de la placa</td>
+  <td>Indicador, activo en LOW</td>
+  <td>Implementado y probado</td>
+</tr>
+<tr>
+  <td>ESP32-C3 GPIO9</td>
+  <td>Botón BOOT integrado</td>
+  <td>Cambio de pantalla OLED</td>
+  <td>Implementado en v1.4.1</td>
+</tr>
+<tr>
+  <td>Batería LiPo (+), mediante JST-PH</td>
+  <td>Pin identificado 5V de ESP32-C3</td>
+  <td>Alimentación directa utilizada</td>
+  <td>Montado; compatibilidad eléctrica pendiente</td>
+</tr>
+<tr>
+  <td>Batería LiPo (+), mediante JST-PH</td>
+  <td>Alimentación de MAX30102 y módulo motor</td>
+  <td>Alimentación compartida</td>
+  <td>Montado; rango de tensión pendiente</td>
+</tr>
+<tr>
+  <td>Batería LiPo (−)</td>
+  <td>GND común de las placas</td>
+  <td>Referencia eléctrica</td>
+  <td>Montado</td>
+</tr>
+<tr>
+  <td>Batería (+) → 100 kΩ</td>
+  <td>Nodo de medida GPIO0</td>
+  <td>Resistencia superior del divisor</td>
+  <td>Implementado y probado</td>
+</tr>
+<tr>
+  <td>Nodo GPIO0 → 100 kΩ → GND</td>
+  <td>GPIO0 y tierra</td>
+  <td>Resistencia inferior del divisor</td>
+  <td>Implementado y probado</td>
+</tr>
+</tbody>
+</table>
+<p>La pantalla OLED está integrada en la placa ESP32-C3. Las direcciones I²C utilizadas como referencia son <code>0x3C</code> para la OLED y <code>0x57</code> para el MAX30102; se deben comprobar si se reemplaza alguno de los módulos.</p>
+<h2 id="5-alimentaci-n-mediante-bater-a-desmontable">5. Alimentación mediante batería desmontable</h2>
+<p>Se utilizó una batería LiPo de <strong>3,7 V nominales y 150 mAh</strong> con un <strong>conector JST-PH macho en el cable de batería</strong>. El cableado de la pulsera incorpora una <strong>hembra JST-PH</strong> que distribuye la alimentación hacia el pin marcado <strong>5V</strong> del ESP32-C3 y hacia los módulos MAX30102 y vibrador. Todos los dispositivos comparten GND.</p>
+<p>El cargador se mantuvo <strong>separado del circuito</strong> y dispone de otra hembra JST-PH. Para cargar la batería se desconecta primero de la pulsera y después se conecta al cargador. Una vez finalizada la carga, se desconecta del cargador y se vuelve a conectar a la pulsera.</p>
+<p><strong>ADVERTENCIA DE SEGURIDAD: no conectar la batería al circuito cuando el cable USB esté conectado al ESP32-C3.</strong> Para programar o probar por USB, retirar previamente la batería. Antes de volver a conectar la batería, retirar el USB. Esta restricción corresponde al cableado directo utilizado, en el que no se ha demostrado aislamiento entre fuentes.</p>
+<p>El pin marcado <code>5V</code> <strong>no recibe 5 V regulados</strong> en esta configuración: recibe el voltaje variable de la celda LiPo. El funcionamiento observado no valida el rango eléctrico del pin ni el de los módulos. Antes de reproducir el montaje en un taller, se requiere comprobar las especificaciones y valorar una alimentación regulada con protección adecuada. También se debe medir y confirmar la polaridad de ambos conectores JST-PH: su compatibilidad mecánica no garantiza polaridad coincidente.</p>
+<h2 id="6-medici-n-del-voltaje-de-bater-a">6. Medición del voltaje de batería</h2>
+<p>El voltaje se obtiene mediante un divisor de dos resistencias iguales de 100 kΩ. La primera conecta el positivo de batería al nodo ADC GPIO0 y la segunda conecta ese nodo a GND. En condiciones ideales, el voltaje en GPIO0 es la mitad del voltaje de la batería: <code>V_GPIO0 = V_LiPo × 100 kΩ / (100 kΩ + 100 kΩ)</code>. El firmware estima el voltaje de batería multiplicando la lectura ADC por dos, con la calibración correspondiente.</p>
+<p>La lectura de batería mostrada en la pantalla OLED <strong>fue comparada con un multímetro y coincidió</strong> dentro de la precisión observada durante la prueba. Este resultado valida la lectura utilizada en ese montaje; no equivale a una calibración metrológica ni a una estimación exacta del porcentaje de carga. El texto <code>CARGAR</code> informa sobre batería baja, pero no sustituye un circuito de protección contra descarga excesiva.</p>
+<h2 id="7-medici-n-de-frecuencia-card-aca-por-i-c">7. Medición de frecuencia cardíaca por I²C</h2>
+<p>El ESP32-C3 se comunica con el MAX30102 mediante SDA en GPIO5 y SCL en GPIO6. El sensor ilumina la piel y mide variaciones de luz reflejada; el firmware identifica cambios periódicos asociados al pulso y estima pulsaciones por minuto (BPM). La pantalla OLED integrada utiliza el mismo bus I²C, con una dirección distinta.</p>
+<p>El mensaje <strong><code>SIN CONTACTO</code></strong> se adoptó para indicar que la señal óptica disponible no permite una medición válida. Esta expresión describe mejor el uso en muñeca que el mensaje anterior <code>SIN DEDO</code>. La detección es indirecta: no existe un interruptor que confirme físicamente que la pulsera está colocada.</p>
+<h2 id="8-se-alizaci-n-y-alerta">8. Señalización y alerta</h2>
+<p>La alerta se configuró con un umbral inicial de <strong>50 BPM</strong> y una confirmación de lectura inferior al umbral durante <strong>más de 5 segundos</strong>. El motor vibra mediante el módulo controlador conectado a GPIO4. La secuencia definida consiste en <strong>tres pulsos de 300 ms</strong>, separados por <strong>200 ms</strong>, con una pausa de <strong>1000 ms entre ciclos</strong> y un máximo de <strong>tres ciclos</strong>. El LED integrado en GPIO8 trabaja con lógica invertida: <code>LOW</code> lo enciende. Su duración de alerta se gestiona de forma independiente, hasta <strong>120 segundos</strong> según la configuración de referencia.</p>
+<p>La pérdida de contacto o recuperación de BPM cancela la alerta conforme a la lógica del firmware. La pantalla principal presenta BPM grandes y estado de batería abreviado; el botón BOOT permite consultar una pantalla secundaria con voltaje y umbral. El texto de batería crítica se cambió a <strong><code>CARGAR</code></strong>. La versión v1.4.1 fue un hito aprobado del desarrollo local. La versión de firmware probada indicada para esta edición es <strong>v1.5.3</strong>. El archivo <code>.ino</code> recuperado de v1.4.1 precede algunos cambios manuales de texto y tipografía y no debe presentarse como copia exacta de la versión final. La documentación específica de v1.5.3 corresponde al área Firmware.</p>
+<h2 id="9-carga-de-la-bater-a-y-protecci-n">9. Carga de la batería y protección</h2>
+<p>El cargador USB se utiliza únicamente con la batería <strong>desconectada del prototipo</strong>. La fotografía permite identificar un módulo cargador, pero no demuestra la corriente de carga configurada ni la existencia y topología de protección contra sobrecarga o descarga. La corriente de carga debe verificarse frente a la ficha técnica de la celda de 150 mAh antes de utilizar el cargador en prácticas estudiantiles.</p>
+<p>No se debe dejar la batería cargando sin supervisión ni utilizar celdas hinchadas, dañadas o calientes. Se deben aislar las conexiones y evitar cortocircuitos. La selección de una solución de alimentación regulada y protegida continúa pendiente de validación eléctrica.</p>
+<h2 id="10-procedimiento-de-reproducci-n-y-pruebas">10. Procedimiento de reproducción y pruebas</h2>
+<ol>
+<li>Identificar físicamente los pines de la placa ESP32-C3 con el pinout adjunto; comprobar que la variante de placa corresponde a la utilizada.</li>
+<li>Montar SDA del MAX30102 en GPIO5, SCL en GPIO6 y GND común. Conectar el control del módulo vibrador a GPIO4, sin conectar el motor directamente al pin.</li>
+<li>Montar el divisor de 100 kΩ + 100 kΩ entre positivo de batería y GND, llevando el punto medio a GPIO0.</li>
+<li>Preparar el cableado JST-PH, verificar con multímetro la polaridad de cada conector y comprobar ausencia de cortocircuitos, <strong>sin fuentes conectadas</strong>.</li>
+<li><strong>Con batería desconectada</strong>, conectar el USB y cargar el firmware correspondiente. Verificar pantalla, detección del MAX30102, LED y control de motor.</li>
+<li>Desconectar el USB. Solo entonces conectar la batería a la hembra JST-PH de la pulsera; comprobar tensiones y temperatura de los módulos durante funcionamiento y vibración.</li>
+<li>Comparar el voltaje OLED con el multímetro y comprobar el mensaje <code>SIN CONTACTO</code> al retirar la pulsera.</li>
+<li>Comprobar que BOOT muestra la pantalla secundaria y que los avisos de alerta respetan los temporizadores. No provocar bradicardia en personas para probar la alerta.</li>
+<li>Para cargar la batería, desconectarla del prototipo y conectarla exclusivamente al cargador externo; comprobar previamente corriente y polaridad.</li>
+</ol>
+<h2 id="11-resultados-verificados-y-pendientes">11. Resultados verificados y pendientes</h2>
+<p><strong>Implementado y probado:</strong> comunicación I²C con MAX30102, visualización OLED, GPIO4 y módulo vibrador, LED integrado GPIO8, lectura de voltaje por divisor resistivo contrastada con multímetro y funcionamiento general de v1.4.1 reportado como aprobado en su momento. <strong>Firmware de referencia probado en la edición actual: v1.5.3</strong>, según confirmación del responsable; sus pruebas detalladas deben consultarse en la documentación de Firmware.</p>
+<p><strong>Implementado, con verificación eléctrica incompleta:</strong> alimentación directa de la batería al pin rotulado 5V y a los módulos; separación manual entre circuito y cargador mediante JST-PH.</p>
+<p><strong>Pendiente:</strong> confirmar especificaciones de entrada de alimentación de cada placa, tensión nominal y consumo del motor, corriente de carga real y protección del cargador, polaridad documentada de los JST-PH, medidas eléctricas bajo carga y esquema de fabricación a nivel de componentes internos.</p>
+<h2 id="12-material-fotogr-fico-y-referencias-del-proyecto">12. Material fotográfico y referencias del proyecto</h2>
+<ul>
+<li><code>esp32(1).jpg</code>: fotografía de la placa ESP32-C3 OLED.</li>
+<li><code>esp32 pinout(1).png</code>: identificación de pines y funciones.</li>
+<li><code>Max30102(1).jpg</code>: fotografía del sensor óptico.</li>
+<li><code>Motor vibración 1(1).jpg</code>: fotografía del módulo vibrador.</li>
+<li><code>Cargador de baterías(1).jpg</code>: fotografía del módulo cargador separado.</li>
+<li><code>katrare-logo.png</code>: logotipo original utilizado en la presentación gráfica del documento.</li>
+</ul>
+<p>Las fotografías son referencias de los módulos empleados, no imágenes que demuestren por sí solas el cableado físico terminado. El archivo SVG es un <strong>diagrama de interconexiones</strong>, no una fotografía ni una certificación eléctrica. El firmware, BLE y la aplicación web se documentan en sus áreas respectivas.</p>
+<h2 id="13-descargo-de-responsabilidad-disclaimer">13. Descargo de responsabilidad (disclaimer)</h2>
+<p><strong>Naturaleza educativa y experimental.</strong> PulsoAlert es un prototipo de aprendizaje, investigación y demostración tecnológica. <strong>No es un dispositivo médico</strong>, no ha sido presentado como equipo clínicamente validado y no debe utilizarse para diagnosticar, prevenir, tratar ni monitorizar clínicamente enfermedades o emergencias. Las lecturas de frecuencia cardíaca y sus alertas pueden ser inexactas, tardías o interrumpirse por movimiento, contacto insuficiente, condiciones de iluminación, batería u otros factores. No deben emplearse como única base para decisiones de salud.</p>
+<p><strong>Seguridad eléctrica y batería.</strong> Las conexiones descritas corresponden al montaje experimental realizado y no constituyen una certificación de seguridad ni una garantía de compatibilidad eléctrica. En particular, la batería LiPo se conectó directamente al pin rotulado <code>5V</code> y a otros módulos, sin regulación de 5 V documentada. <strong>Nunca conectar simultáneamente la batería y el USB al ESP32-C3 en este montaje.</strong> Para cargar, retirar la batería del circuito y utilizar el cargador independiente, previa verificación de polaridad, corriente de carga y protección. La reproducción debe realizarse con supervisión técnica y comprobación de las especificaciones de cada componente.</p>
+<p><strong>Alcance documental.</strong> Los esquemas representan interconexiones externas y no sustituyen los esquemáticos de los fabricantes. Las fotografías de catálogo no acreditan por sí mismas la instalación final. Las versiones de firmware <strong>v1.5.3</strong> y sitio web <strong>v0.5.6</strong> se identifican como referencias de esta edición; sus fuentes, ensayos específicos y funcionalidades se documentan en sus respectivas áreas. El presente manual no implica homologación, certificación ni autorización para uso médico o comercial.</p>
+</article><div class="manual-actions"><a href="../../index.html#documentacion">← Volver a PulsoAlert</a></div></main></div><script src="../../manual-viewer.js?v=0.5.7"></script></body></html>

@@ -1,3 +1,20 @@
+# PulsoAlert Web v0.5.7 — Kä Träre / FabLab UNED
+
+Versión actual: **0.5.7**. Firmware de referencia probado: **1.5.3**.
+
+## Novedades v0.5.7
+
+- Biblioteca de cinco manuales (hardware, firmware y web).
+- Lectura en navegador mediante HTML generado a partir de los Markdown originales, con tablas, código, índice y tema claro/oscuro.
+- Acceso a PDF y descarga de Markdown sin cambios en la lógica de medición ni BLE.
+- Visor estático que también funciona desde disco local (`file://`), sin bibliotecas CDN.
+
+## Publicación
+
+Extraer el ZIP y subir **todo su contenido** a la raíz de GitHub Pages. Abrir `index.html`. No omitir `manual-viewer.css`, `manual-viewer.js` ni las páginas HTML de `manuales/`.
+
+## Versiones históricas
+
 # PulsoAlert Web v0.5.5 — Kä Träre / FabLab UNED
 
 Actualización incremental de la v0.5.4. Conserva la interfaz, el simulador, el selector claro/oscuro y la comunicación GATT v1.0/v1.1.

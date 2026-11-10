@@ -1,0 +1,2 @@
+/* Tema del visor, independiente del funcionamiento BLE. */
+(function(){const b=document.getElementById('manualTheme');const key='pulsoalert-manual-theme';try{if(localStorage.getItem(key)==='light')document.body.classList.add('light-theme')}catch(e){}b.addEventListener('click',()=>{document.body.classList.toggle('light-theme');try{localStorage.setItem(key,document.body.classList.contains('light-theme')?'light':'dark')}catch(e){}})})();
