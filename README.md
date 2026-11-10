@@ -1,22 +1,29 @@
-# PulsoAlert Web v0.5.1
+# PulsoAlert Web v0.5.4 — Kä Träre / FabLab UNED
 
-**Etapa 1:** compatibilidad de telemetría GATT v1.0 (6 bytes) y v1.1 (8 bytes).
+Versión basada en la **v0.5.1 validada por el usuario** con firmware ESP32-C3 v1.5.1 revisión A. Se mantienen el HTML estructural, `styles.css`, el logotipo institucional, los temas y el simulador.
 
-Consulta `docs/CAMBIOS_Web_v0.5.1.md` para modificaciones y pruebas.
-
-# PulsoAlert Web v0.5.0 — Kä Träre / FabLab UNED
-
-Basado en la interfaz aprobada v0.4.1. Se preservan `styles.css`, logotipo y layout.
-
-## Novedades
-- `bluetooth.js`: conexión Web Bluetooth, notificaciones de medición, lectura de parámetros y escrituras con confirmación y relectura.
-- El simulador sigue funcionando sin hardware. Al conectar, deja de sobrescribir mediciones reales.
-- La batería BLE se muestra como porcentaje, o `--` si el firmware reporta 255 (desconocido). La demostración conserva el voltaje ficticio.
+## Cambios
+- Indicación de estados BLE: demostración, conectando, conectado y desconectado.
+- Ante una desconexión, se ocultan BPM, batería, contacto y alerta antiguos; no se vuelven a presentar como datos en tiempo real.
+- Reconexión **manual** desde el botón Conectar BLE (sin permisos automáticos ni reconexión silenciosa).
+- Al conectar, se muestran los tres valores recuperados del dispositivo.
+- Al aplicar, la confirmación informa `CONFIG_STATUS=1` y los valores efectivamente releídos. En fallos, la secuencia se detiene y se releen los valores vigentes cuando la conexión lo permite.
+- Protección contra continuar verificaciones de configuración si la conexión cambia durante la operación.
+- Cache-busting de scripts `?v=0.5.2`.
 
 ## Publicación
-Subir todos los archivos al directorio raíz del repositorio GitHub Pages, incluyendo `bluetooth.js` y `docs/`. Probar con Chrome/Edge compatible sobre HTTPS.
+Subir el contenido del ZIP a la raíz del repositorio `PulsoAlertPage`, reemplazando los archivos existentes. El diseño aprobado no requiere modificaciones en `styles.css`.
 
-## Importante
-**La comunicación BLE NO está validada con hardware.** Requiere firmware ESP32-C3 v1.5 que implemente exactamente `docs/PulsoAlert_Contrato_BLE_v1.0.md`. El firmware v1.4.2 no anuncia este servicio. La confirmación GATT propuesta supone un solo cliente escritor y que el firmware actualiza CONFIG_STATUS después de persistir en NVS. La web detiene la secuencia ante el primer fallo y no asegura atomicidad de tres parámetros.
+## Alcance de pruebas
+La sintaxis JavaScript y el ZIP se verificaron localmente. **No se han realizado pruebas físicas de la v0.5.4**. La compatibilidad BLE de 6 y 8 bytes se hereda de v0.5.1; las nuevas mejoras requieren prueba con hardware.
 
-El proyecto es educativo y no constituye un dispositivo médico.
+Consulta `docs/CAMBIOS_Web_v0.5.4.md` para detalle técnico y pruebas sugeridas. Prototipo educativo; no es dispositivo médico.
+
+
+## Corrección v0.5.4
+Tras desconectar BLE, la interfaz oculta los datos reales. Pulsar cualquiera de los cuatro escenarios vuelve a activar el simulador sin recargar la página. Mientras BLE esté conectado, los escenarios no sustituyen la telemetría real. El diseño CSS y el protocolo GATT permanecen intactos.
+
+
+## Ajustes v0.5.4
+
+Se elimina la tarjeta obsoleta Estado de integración y se simplifica el mensaje de guardado. Se conservan la confirmación CONFIG_STATUS, la relectura GATT, la lógica de NVS, el simulador, los temas y el CSS sin modificaciones.

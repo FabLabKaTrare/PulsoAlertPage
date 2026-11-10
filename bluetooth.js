@@ -1,4 +1,4 @@
-/* PulsoAlert Web v0.5.1 — Cliente BLE educativo.
+/* PulsoAlert Web v0.5.2 — Cliente BLE educativo.
  * Contratos GATT v1.0 (6 bytes) y v1.1 (8 bytes).
  * Ninguna escritura se considera persistida sin confirmación y relectura.
  */
@@ -11,6 +11,7 @@ const PulsoBLE = (() => {
   const ids = { threshold: 1, cycles: 2, ledMinutes: 3 };
   const limits = { threshold: [30,120], cycles: [1,5], ledMinutes: [1,10] };
   let device = null, server = null, characteristics = {}, connected = false;
+  let connectionGeneration = 0;
   let onMeasurement = () => {}, onConnection = () => {};
   const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
   const isAvailable = () => Boolean(navigator.bluetooth && window.isSecureContext);
@@ -40,7 +41,9 @@ const PulsoBLE = (() => {
     if (view.byteLength !== 4) throw new Error('Confirmación BLE con longitud incorrecta.');
     return { code: view.getUint8(0), parameter: view.getUint8(1), value: view.getUint16(2,true) };
   }
+  /** Invalida las operaciones pendientes y notifica una desconexión real. */
   function disconnectEvent() {
+    connectionGeneration++;
     connected = false; server = null; characteristics = {};
     onConnection(false);
   }
@@ -81,6 +84,7 @@ const PulsoBLE = (() => {
   }
   async function applySettings(settings) {
     if (!connected) throw new Error('No existe conexión BLE.');
+    const generation = connectionGeneration;
     const results = [];
     for (const key of Object.keys(ids)) {
       const value = Number(settings[key]);
@@ -90,12 +94,14 @@ const PulsoBLE = (() => {
       const view = new DataView(buffer);
       if (key === 'cycles') view.setUint8(0,value); else view.setUint16(0,value,true);
       try {
+        if (!connected || generation !== connectionGeneration) throw new Error('Conexión BLE interrumpida.');
         // Se verifica código, parámetro y valor vigente. Se concede un tiempo
         // breve para que el firmware persista en NVS y actualice CONFIG_STATUS.
         await characteristics[key].writeValueWithResponse(buffer);
         let confirmed = false;
         for (let attempt = 0; attempt < 15; attempt++) {
           await pause(200);
+          if (!connected || generation !== connectionGeneration) throw new Error('Conexión BLE interrumpida.');
           const ack = status(await characteristics.status.readValue());
           if (ack.parameter === ids[key]) {
             if (ack.code === 2 || ack.code === 3) throw new Error(`El dispositivo rechazó ${key} (código ${ack.code}).`);
@@ -106,7 +112,7 @@ const PulsoBLE = (() => {
         const readBack = await characteristics[key].readValue();
         const actual = key === 'cycles' ? readBack.getUint8(0) : readBack.getUint16(0,true);
         if (actual !== value) throw new Error(`La relectura de ${key} no coincide.`);
-        results.push({key, ok:true});
+        results.push({key, ok:true, value:actual, confirmation:1});
       } catch (error) { results.push({key,ok:false,error:error.message}); break; }
     }
     return results;
