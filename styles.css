@@ -117,3 +117,19 @@ body.light-theme{--background:#f6f7f9;--surface:#fff;--text:#11151b;--muted:#596
 .header-project{margin-left:auto}
 .theme-toggle{flex-shrink:0}
 @media(max-width:650px){.header-project{margin-left:0}.brand{flex:1 1 auto}}
+
+
+/* v0.5.5: avisos de batería. Solo colores de la tarjeta existente;
+   se conservan la estructura, el tema institucional y el layout. */
+#batteryCard.battery-recharge { border-color: var(--warning); }
+#batteryCard.battery-recharge .metric-value strong,
+#batteryCard.battery-recharge .metric-footer { color: var(--warning); }
+#batteryCard.battery-low, #batteryCard.battery-critical { border-color: var(--danger); }
+#batteryCard.battery-low .metric-value strong,
+#batteryCard.battery-low .metric-footer,
+#batteryCard.battery-critical .metric-value strong,
+#batteryCard.battery-critical .metric-footer { color: var(--danger); }
+
+/* v0.5.6: separación visual mínima del simulador de batería, sin alterar el layout. */
+.battery-simulator-heading{margin:22px 0 7px;font-size:15px;font-weight:700}
+.battery-simulation-grid{margin-top:12px}

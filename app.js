@@ -1,5 +1,5 @@
 /* ==============================================================
-   PULSOALERT WEB v0.5.4 - CONTROL DE INTERFAZ
+   PULSOALERT WEB v0.5.5 - CONTROL DE INTERFAZ
    Aplicación educativa sin dependencias externas.
 
    IMPORTANTE:
@@ -27,9 +27,89 @@ const outputs = {
 
 // Identificador del escenario visual seleccionado.
 let currentScenario = 'normal';
+// Estado de batería independiente del escenario de frecuencia cardíaca.
+let currentBatteryScenario = 'normal';
 let connectionBusy = false;
 let settingsBusy = false;
 let connectionEverEstablished = false;
+
+/**
+ * Avisos orientativos para una LiPo 1S bajo carga (milivoltios).
+ * No representan un porcentaje de carga ni sustituyen protección eléctrica.
+ * Tres muestras filtradas consecutivas evitan reaccionar a picos aislados.
+ * La histéresis de 80 mV evita cambios rápidos cerca de los límites.
+ */
+const BATTERY_LIMITS_MV = Object.freeze({ recharge: 3600, low: 3400, critical: 3200 });
+const BATTERY_HYSTERESIS_MV = 80;
+const BATTERY_CONFIRM_SAMPLES = 3;
+const BATTERY_FILTER_WINDOW = 5;
+const batteryLevels = ['normal', 'recharge', 'low', 'critical'];
+let batterySamples = [];
+let batteryLevel = 'normal';
+let batteryCandidate = null;
+let batteryCandidateCount = 0;
+
+/** Descarta el historial al cambiar de fuente de datos (BLE/demostración). */
+function resetBatteryWarnings() {
+  batterySamples = [];
+  batteryLevel = 'normal';
+  batteryCandidate = null;
+  batteryCandidateCount = 0;
+  const card = document.getElementById('batteryCard');
+  card.classList.remove('battery-recharge', 'battery-low', 'battery-critical');
+}
+
+/** Devuelve la mediana, resistente a valores puntuales extremos. */
+function medianBatteryVoltage(values) {
+  const ordered = [...values].sort((a, b) => a - b);
+  return ordered[Math.floor(ordered.length / 2)];
+}
+
+/**
+ * Clasifica el voltaje con histéresis respecto al estado confirmado.
+ * Los límites se aplican al voltaje medido, no a un porcentaje estimado.
+ * @param {number} mv Voltaje filtrado, en milivoltios.
+ * @returns {'normal'|'recharge'|'low'|'critical'}
+ */
+function classifyBatteryVoltage(mv) {
+  const thresholds = [BATTERY_LIMITS_MV.recharge, BATTERY_LIMITS_MV.low, BATTERY_LIMITS_MV.critical];
+  let levelIndex = batteryLevels.indexOf(batteryLevel);
+  // El empeoramiento usa el umbral nominal; la recuperación requiere +80 mV.
+  while (levelIndex < thresholds.length && mv <= thresholds[levelIndex]) levelIndex++;
+  while (levelIndex > 0 && mv > thresholds[levelIndex - 1] + BATTERY_HYSTERESIS_MV) levelIndex--;
+  return batteryLevels[levelIndex];
+}
+
+/** Actualiza el estado tras tres mediciones filtradas consecutivas concordantes. */
+function updateBatteryWarning(mv) {
+  batterySamples.push(mv);
+  if (batterySamples.length > BATTERY_FILTER_WINDOW) batterySamples.shift();
+  const filtered = medianBatteryVoltage(batterySamples);
+  const proposed = classifyBatteryVoltage(filtered);
+  if (proposed === batteryLevel) {
+    batteryCandidate = null;
+    batteryCandidateCount = 0;
+  } else {
+    batteryCandidateCount = proposed === batteryCandidate ? batteryCandidateCount + 1 : 1;
+    batteryCandidate = proposed;
+    if (batteryCandidateCount >= BATTERY_CONFIRM_SAMPLES) {
+      batteryLevel = proposed;
+      batteryCandidate = null;
+      batteryCandidateCount = 0;
+    }
+  }
+  const card = document.getElementById('batteryCard');
+  card.classList.toggle('battery-recharge', batteryLevel === 'recharge');
+  card.classList.toggle('battery-low', batteryLevel === 'low');
+  card.classList.toggle('battery-critical', batteryLevel === 'critical');
+  return {
+    normal: '',
+    recharge: 'Recargar pronto.',
+    low: 'Batería muy baja: recargar o apagar.',
+    critical: 'Batería crítica: apagar el dispositivo.'
+  }[batteryLevel];
+}
+
 
 /** Actualiza el texto de cada control sin enviar información al hardware. */
 function updateOutputs() {
@@ -73,6 +153,45 @@ function showScenario(scenario) {
   });
 }
 
+/**
+ * Presenta una batería ficticia sin alterar las mediciones BLE ni los parámetros del ESP32.
+ * Los valores representan escenarios de prueba visual, no una estimación de autonomía.
+ * @param {'normal'|'recharge'|'low'|'critical'} scenario
+ */
+function showBatteryScenario(scenario) {
+  if (PulsoBLE.connected || connectionBusy || settingsBusy) return;
+  const examples = {
+    normal: { mv: 3920, label: 'Estado normal (simulado)' },
+    recharge: { mv: 3520, label: 'Recargar pronto (simulado)' },
+    low: { mv: 3320, label: 'Batería muy baja: recargar o apagar (simulado)' },
+    critical: { mv: 3100, label: 'Batería crítica: apagar el dispositivo (simulado)' }
+  };
+  const selected = examples[scenario];
+  if (!selected) return;
+  if (connectionEverEstablished) {
+    connectionEverEstablished = false;
+    renderConnection('demo');
+    document.getElementById('settingsMessage').textContent = 'Modo demostración activado. Los ajustes no se envían al ESP32-C3.';
+  }
+  currentBatteryScenario = scenario;
+  // En el simulador se aplica el estado elegido directamente; el filtro de cinco
+  // muestras y la histéresis siguen reservados para las mediciones BLE reales.
+  resetBatteryWarnings();
+  batteryLevel = scenario;
+  const card = document.getElementById('batteryCard');
+  card.classList.toggle('battery-recharge', scenario === 'recharge');
+  card.classList.toggle('battery-low', scenario === 'low');
+  card.classList.toggle('battery-critical', scenario === 'critical');
+  document.getElementById('batteryValue').textContent = (selected.mv / 1000).toFixed(3);
+  document.querySelector('.metric:nth-child(2) .metric-value span').textContent = 'V';
+  document.getElementById('batteryStatus').textContent = selected.label;
+  document.querySelectorAll('[data-battery-scenario]').forEach(button => {
+    const active = button.dataset.batteryScenario === scenario;
+    button.classList.toggle('selected', active);
+    button.setAttribute('aria-pressed', String(active));
+  });
+}
+
 /** Restablece los controles a sus valores iniciales de demostración. */
 function resetSettings() {
   for (const [name, value] of Object.entries(DEFAULTS)) controls[name].value = String(value);
@@ -109,6 +228,7 @@ function renderConnection(state) {
   })[state];
   document.getElementById('connectionDot').style.backgroundColor = state === 'connected' ? '#2bbf73' : state === 'connecting' ? '#e3b341' : '';
   if (state === 'disconnected' || state === 'connecting') {
+    resetBatteryWarnings();
     document.getElementById('bpmValue').textContent = '--';
     document.getElementById('contactValue').textContent = state === 'connecting' ? 'Esperando medición real' : 'Sin conexión BLE';
     document.getElementById('batteryValue').textContent = '--';
@@ -119,10 +239,10 @@ function renderConnection(state) {
     alert.className = 'alert-value';
     document.getElementById('alertDescription').textContent = 'Estado del dispositivo no disponible';
   } else if (state === 'demo') {
+    resetBatteryWarnings();
     document.querySelector('.metric:nth-child(2) .metric-value span').textContent = 'V';
-    document.getElementById('batteryValue').textContent = '3.92';
-    document.getElementById('batteryStatus').textContent = 'Estado: normal (simulado)';
     showScenario(currentScenario);
+    showBatteryScenario(currentBatteryScenario);
   }
 }
 
@@ -154,14 +274,18 @@ function showMeasurement(data) {
   if (voltageAvailable) {
     batteryValue.textContent = (data.voltageMv / 1000).toFixed(3);
     batteryUnit.textContent = 'V';
-    batteryStatus.textContent = percentageAvailable
+    const warning = updateBatteryWarning(data.voltageMv);
+    const detail = percentageAvailable
       ? `Voltaje medido · ${data.battery}% reportado por el dispositivo`
       : 'Voltaje medido · porcentaje sin calibrar';
+    batteryStatus.textContent = warning ? `${warning} ${detail}` : detail;
   } else if (percentageAvailable) {
+    resetBatteryWarnings();
     batteryValue.textContent = String(data.battery);
     batteryUnit.textContent = '%';
     batteryStatus.textContent = 'Porcentaje reportado por el dispositivo · voltaje no disponible';
   } else {
+    resetBatteryWarnings();
     batteryValue.textContent = '--';
     batteryUnit.textContent = '';
     batteryStatus.textContent = 'Batería no disponible';
@@ -241,12 +365,18 @@ document.querySelectorAll('[data-scenario]').forEach(button => {
   button.addEventListener('click', () => showScenario(button.dataset.scenario));
 });
 
+// La batería puede simularse independientemente de la frecuencia cardíaca.
+document.querySelectorAll('[data-battery-scenario]').forEach(button => {
+  button.addEventListener('click', () => showBatteryScenario(button.dataset.batteryScenario));
+});
+
 // El permiso Bluetooth se solicita únicamente por interacción del usuario.
 document.getElementById('connectButton').addEventListener('click', toggleBluetooth);
 
 // Estado inicial de la interfaz.
 updateOutputs();
 showScenario(currentScenario);
+showBatteryScenario(currentBatteryScenario);
 
 // Alterna únicamente la apariencia visual; no modifica parámetros del dispositivo.
 const themeToggle = document.getElementById('themeToggle');

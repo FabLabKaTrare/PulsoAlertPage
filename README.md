@@ -1,29 +1,21 @@
-# PulsoAlert Web v0.5.4 — Kä Träre / FabLab UNED
+# PulsoAlert Web v0.5.5 — Kä Träre / FabLab UNED
 
-Versión basada en la **v0.5.1 validada por el usuario** con firmware ESP32-C3 v1.5.1 revisión A. Se mantienen el HTML estructural, `styles.css`, el logotipo institucional, los temas y el simulador.
+Actualización incremental de la v0.5.4. Conserva la interfaz, el simulador, el selector claro/oscuro y la comunicación GATT v1.0/v1.1.
 
-## Cambios
-- Indicación de estados BLE: demostración, conectando, conectado y desconectado.
-- Ante una desconexión, se ocultan BPM, batería, contacto y alerta antiguos; no se vuelven a presentar como datos en tiempo real.
-- Reconexión **manual** desde el botón Conectar BLE (sin permisos automáticos ni reconexión silenciosa).
-- Al conectar, se muestran los tres valores recuperados del dispositivo.
-- Al aplicar, la confirmación informa `CONFIG_STATUS=1` y los valores efectivamente releídos. En fallos, la secuencia se detiene y se releen los valores vigentes cuando la conexión lo permite.
-- Protección contra continuar verificaciones de configuración si la conexión cambia durante la operación.
-- Cache-busting de scripts `?v=0.5.2`.
+## Novedad
 
-## Publicación
-Subir el contenido del ZIP a la raíz del repositorio `PulsoAlertPage`, reemplazando los archivos existentes. El diseño aprobado no requiere modificaciones en `styles.css`.
+Avisos de batería basados exclusivamente en voltaje BLE real, sin estimar porcentaje: recargar pronto (≤3.60 V), batería muy baja (≤3.40 V) y crítica (≤3.20 V). Valores orientativos para LiPo 1S; requieren validación física. El voltaje se sigue mostrando con tres decimales. Los avisos utilizan mediana de las últimas cinco muestras, confirmación por tres muestras filtradas consecutivas e histéresis de 80 mV al recuperarse. La interfaz no apaga el ESP32-C3.
 
-## Alcance de pruebas
-La sintaxis JavaScript y el ZIP se verificaron localmente. **No se han realizado pruebas físicas de la v0.5.4**. La compatibilidad BLE de 6 y 8 bytes se hereda de v0.5.1; las nuevas mejoras requieren prueba con hardware.
+En modo demostración no se generan advertencias de batería real. Tras desconexión se limpian los datos y el historial de alertas. Para GATT v1.0 (6 bytes) sin voltaje, se conserva la visualización previa sin advertencias basadas en voltaje.
 
-Consulta `docs/CAMBIOS_Web_v0.5.4.md` para detalle técnico y pruebas sugeridas. Prototipo educativo; no es dispositivo médico.
+## Instalación
+
+Subir el contenido de este ZIP a la raíz del repositorio GitHub Pages `PulsoAlertPage`. Recargar la página sin caché. No requiere cambios de firmware ni del contrato GATT.
+
+## Estado
+
+Sintaxis JavaScript y ZIP comprobados localmente; pruebas con ESP32-C3 pendientes. Es un prototipo educativo, no un sistema de protección de batería ni un dispositivo médico. La placa de protección de la LiPo debe verificarse por separado.
 
 
-## Corrección v0.5.4
-Tras desconectar BLE, la interfaz oculta los datos reales. Pulsar cualquiera de los cuatro escenarios vuelve a activar el simulador sin recargar la página. Mientras BLE esté conectado, los escenarios no sustituyen la telemetría real. El diseño CSS y el protocolo GATT permanecen intactos.
-
-
-## Ajustes v0.5.4
-
-Se elimina la tarjeta obsoleta Estado de integración y se simplifica el mensaje de guardado. Se conservan la confirmación CONFIG_STATUS, la relectura GATT, la lógica de NVS, el simulador, los temas y el CSS sin modificaciones.
+## v0.5.6 — Simulador de batería
+Se agregan cuatro escenarios de batería independientes de los de frecuencia cardíaca. Solo se habilitan sin conexión BLE; no modifican el firmware. Los valores son ficticios: 3.920, 3.520, 3.320 y 3.100 V.

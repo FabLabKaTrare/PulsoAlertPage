@@ -7,8 +7,8 @@
   <meta name="description" content="PulsoAlert, proyecto educativo del FabLab Kä Träre: monitoreo y configuración experimental de frecuencia cardíaca.">
   <title>PulsoAlert | Kä Träre · FabLab</title>
   <link rel="stylesheet" href="styles.css?v=0.5.4">
-  <script src="bluetooth.js?v=0.5.4" defer></script>
-  <script src="app.js?v=0.5.4" defer></script>
+  <script src="bluetooth.js?v=0.5.5" defer></script>
+  <script src="app.js?v=0.5.5" defer></script>
 </head>
 <body>
   <header class="site-header">
@@ -33,7 +33,7 @@
 
     <section class="metrics" aria-label="Mediciones">
       <article class="metric metric-primary"><div class="metric-label">Frecuencia cardíaca <span aria-hidden="true">♡</span></div><div class="metric-value"><strong id="bpmValue">72</strong><span>BPM</span></div><div class="metric-footer"><span class="small-dot green"></span><span id="contactValue">Contacto detectado (simulado)</span></div></article>
-      <article class="metric"><div class="metric-label">Batería <span aria-hidden="true">▰</span></div><div class="metric-value"><strong id="batteryValue">3.92</strong><span>V</span></div><div class="metric-footer" id="batteryStatus">Estado: normal (simulado)</div></article>
+      <article class="metric" id="batteryCard"><div class="metric-label">Batería <span aria-hidden="true">▰</span></div><div class="metric-value"><strong id="batteryValue">3.92</strong><span>V</span></div><div class="metric-footer" id="batteryStatus">Estado: normal (simulado)</div></article>
       <article class="metric"><div class="metric-label">Estado de alerta <span aria-hidden="true">⚑</span></div><div class="alert-value" id="alertValue">Normal</div><div class="metric-footer" id="alertDescription">Sin alerta activa (simulado)</div></article>
     </section>
 
@@ -52,10 +52,13 @@
         <div class="panel-heading"><div><p class="eyebrow">LABORATORIO</p><h2 id="testingHeading">Simulador de estados</h2></div><span class="panel-icon" aria-hidden="true">⌁</span></div>
         <p class="muted">Prueba visualmente cómo se presenta cada situación. Los botones no controlan el hardware.</p>
         <div class="simulation-grid"><button type="button" class="sim-button selected" data-scenario="normal">♥ <span>Normal</span></button><button type="button" class="sim-button" data-scenario="low">↓ <span>FC baja</span></button><button type="button" class="sim-button" data-scenario="alert">! <span>Alerta</span></button><button type="button" class="sim-button" data-scenario="no-contact">○ <span>Sin contacto</span></button></div>
+        <h3 class="battery-simulator-heading">Simulador de batería</h3>
+        <p class="muted">Prueba las advertencias de recarga con voltajes ficticios. No modifica la batería real.</p>
+        <div class="simulation-grid battery-simulation-grid"><button type="button" class="sim-button selected" data-battery-scenario="normal">▰ <span>Normal</span></button><button type="button" class="sim-button" data-battery-scenario="recharge">▱ <span>Recargar pronto</span></button><button type="button" class="sim-button" data-battery-scenario="low">! <span>Muy baja</span></button><button type="button" class="sim-button" data-battery-scenario="critical">⚠ <span>Crítica</span></button></div>
       </section>
     </div>
     <section class="educational-note"><span aria-hidden="true">ⓘ</span><div><strong>Proyecto educativo</strong><p>PulsoAlert es un prototipo experimental. No es un dispositivo médico ni debe utilizarse para tomar decisiones clínicas. Sin conexión BLE, las mediciones son simuladas.</p></div></section>
   </main>
-  <footer class="site-footer"><div class="container footer-inner"><span>© Kä Träre · FabLab</span><span>PulsoAlert Web v0.5.4 · Kä Träre</span></div></footer>
+  <footer class="site-footer"><div class="container footer-inner"><span>© Kä Träre · FabLab</span><span>PulsoAlert Web v0.5.6 · Kä Träre</span></div></footer>
 </body>
 </html>
