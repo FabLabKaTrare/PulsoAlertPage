@@ -1,0 +1,119 @@
+/* ==============================================================
+   PULSOALERT WEB v0.2 - HOJA DE ESTILOS
+   Proyecto educativo Kä Träre / FabLab.
+   IMPORTANTE: colores y tipografía son PROVISIONALES. Antes de
+   publicación institucional, sustituirlos por los tokens oficiales
+   y agregar el logotipo autorizado del laboratorio.
+   ============================================================== */
+:root {
+  /* Paleta provisional; centralizada para facilitar su sustitución. */
+  --brand-dark:#123b45; --brand-deep:#0c2931; --brand-accent:#0cae9a;
+  --brand-light:#e7f7f3; --background:#f4f7f8; --surface:#fff;
+  --text:#1c3038; --muted:#627780; --border:#dce6e8;
+  --warning:#c56a17; --danger:#bb3748; --success:#16856a;
+  /* Fuente del sistema provisional hasta verificar la oficial. */
+  --font:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  --radius:16px; --shadow:0 10px 30px rgba(18,59,69,.055);
+}
+*{box-sizing:border-box}html{font-family:var(--font);color:var(--text);background:var(--background)}body{margin:0;min-height:100vh}button,input{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible{outline:3px solid #0cae9a;outline-offset:3px}.container{width:min(1120px,calc(100% - 36px));margin-inline:auto}
+.site-header{background:var(--brand-deep);color:#fff}.header-inner{min-height:82px;display:flex;align-items:center;justify-content:space-between;gap:16px}.brand{display:flex;align-items:center;gap:12px}.brand-mark{width:46px;height:46px;display:grid;place-items:center;border:2px solid #6ee0cd;border-radius:13px;font-size:20px;font-weight:800}.brand-mark span{color:#6ee0cd}.brand-name{display:block;font-size:19px;font-weight:800;letter-spacing:.2px}.brand-subtitle{display:block;color:#b9d2d4;font-size:10px;letter-spacing:1.5px;margin-top:3px}.header-project{display:flex;align-items:center;gap:9px;font-weight:750}.pulse-symbol{font-size:25px;color:#6ee0cd}
+.intro{display:flex;justify-content:space-between;align-items:center;gap:24px;margin:39px 0 24px}.eyebrow{font-size:11px;font-weight:800;letter-spacing:1.8px;color:var(--brand-accent);margin:0 0 9px}h1{font-size:clamp(32px,5vw,48px);letter-spacing:-1.6px;margin:0 0 8px;line-height:1.1}.title-accent{color:var(--brand-accent)}.lead{color:var(--muted);font-size:15px;line-height:1.5;margin:0}.connection-panel{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--border);padding:10px 12px;border-radius:14px;white-space:nowrap;font-size:13px;font-weight:650}.status-dot,.small-dot{display:inline-block;width:9px;height:9px;background:#d6a046;border-radius:50%}.small-dot.green{background:var(--success)}.button{border:0;border-radius:9px;padding:11px 16px;font-size:13px;font-weight:750;transition:filter .15s}.button:hover{filter:brightness(.95)}.button-primary{background:var(--brand-dark);color:white}.button-secondary{background:var(--brand-light);color:var(--brand-dark)}.button-ghost{background:#edf2f3;color:var(--text)}.notice{background:#eaf5f7;border:1px solid #c9e6eb;color:#285b65;padding:12px 16px;border-radius:11px;font-size:13px;margin-bottom:20px}
+.metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-bottom:20px}.metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:23px 24px;box-shadow:var(--shadow);min-height:180px}.metric-primary{background:var(--brand-dark);border-color:var(--brand-dark);color:#fff}.metric-label{display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:700}.metric-label span{font-size:22px;color:var(--brand-accent)}.metric-primary .metric-label span{color:#8cf0df}.metric-value{display:flex;align-items:baseline;gap:8px;margin:14px 0 12px}.metric-value strong{font-size:48px;line-height:1;font-weight:800;letter-spacing:-1.8px}.metric-value span{font-size:14px;color:var(--muted)}.metric-primary .metric-value span{color:#c5e5e3}.metric-footer{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:7px}.metric-primary .metric-footer{color:#c7e5e2}.alert-value{font-size:31px;font-weight:800;margin:20px 0 16px;color:var(--success)}.alert-value.is-low{color:var(--warning)}.alert-value.is-alert{color:var(--danger)}
+.content-grid{display:grid;grid-template-columns:1.15fr 1fr;gap:20px}.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:26px;box-shadow:var(--shadow)}.panel-heading{display:flex;justify-content:space-between;align-items:center;gap:12px}.panel-heading h2{font-size:22px;letter-spacing:-.5px;margin:0}.panel-icon{font-size:23px;color:var(--brand-accent)}.muted{color:var(--muted);font-size:13px;line-height:1.6;margin:15px 0 22px}.control{margin-bottom:26px}.control-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;font-size:13px}.control-head label{font-weight:700}.control-head output{font-weight:800;color:var(--brand-dark);background:var(--brand-light);padding:6px 10px;border-radius:7px;white-space:nowrap}input[type=range]{width:100%;accent-color:var(--brand-accent);cursor:pointer}.range-ends{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:4px}.action-row{display:flex;flex-wrap:wrap;gap:10px}.feedback{min-height:20px;font-size:12px;color:var(--success);margin:12px 0 0}
+.simulation-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:11px}.sim-button{display:flex;align-items:center;gap:12px;text-align:left;padding:16px 13px;border-radius:11px;border:1px solid var(--border);background:#fff;color:var(--text);font-weight:700}.sim-button:first-letter{font-size:20px}.sim-button:hover,.sim-button.selected{border-color:var(--brand-accent);background:var(--brand-light)}.info-card{background:#f5f8f9;border:1px solid var(--border);border-radius:12px;margin-top:24px;padding:17px}.info-card h3{font-size:14px;margin:0 0 12px}.integration-row{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-top:1px solid var(--border);font-size:12px}.integration-row strong{white-space:nowrap}.ok{color:var(--success)}.pending{color:var(--warning)}.educational-note{display:flex;gap:14px;align-items:flex-start;background:#fff;border:1px solid var(--border);border-radius:12px;padding:17px 20px;margin:22px 0 38px}.educational-note>span{font-size:23px;color:var(--brand-accent)}.educational-note strong{font-size:13px}.educational-note p{margin:5px 0 0;font-size:12px;color:var(--muted);line-height:1.6}.site-footer{border-top:1px solid var(--border);padding:23px 0}.footer-inner{display:flex;justify-content:space-between;gap:12px;color:var(--muted);font-size:12px}
+@media(max-width:850px){.intro{align-items:flex-start;flex-direction:column}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.metric:last-child{grid-column:1/-1}.content-grid{grid-template-columns:1fr}}@media(max-width:520px){.container{width:min(100% - 24px,1120px)}.header-inner{min-height:76px}.brand-subtitle{font-size:8px;letter-spacing:.6px}.header-project{font-size:13px}.intro{margin:27px 0 18px}.connection-panel{flex-wrap:wrap;width:100%}.connection-panel .button{margin-left:auto}.metrics{grid-template-columns:1fr;gap:12px}.metric:last-child{grid-column:auto}.metric{min-height:145px;padding:20px}.metric-value strong{font-size:42px}.panel{padding:20px}.footer-inner{flex-direction:column}.control-head{align-items:flex-start}.simulation-grid{gap:8px}.sim-button{padding:12px 10px}}
+
+
+/* TEMA INSTITUCIONAL: se aplica después del CSS estructural. */
+
+/* ================================================================
+   PULSOALERT WEB v0.4 — TEMA VISUAL KÄ TRÄRE
+   Inspirado en las capturas del dashboard y centro de aprendizaje.
+   Los colores son aproximaciones visuales a esas capturas.
+   ================================================================ */
+:root {
+ --brand-dark:#11161e; --brand-deep:#000; --brand-accent:#ffcc00;
+ --brand-light:#292616; --background:#000; --surface:#12171f;
+ --text:#f5f6f8; --muted:#b8bec9; --border:#423a18;
+ --warning:#ffca4b; --danger:#ff6972; --success:#7de0b0;
+ --font:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+ --radius:13px; --shadow:none;
+}
+html,body{background:var(--background);color:var(--text);font-family:var(--font)}
+button:focus-visible,input:focus-visible{outline-color:#ffcc00}
+.container{width:min(1170px,calc(100% - 38px))}
+.site-header{background:#000;border-bottom:1px solid #2e2814}
+.header-inner{min-height:100px;gap:18px}
+.brand{gap:12px}.brand-logo{width:185px;max-width:42vw}
+.brand-subtitle{color:#d1d5db;font-size:10px;font-weight:650;letter-spacing:1.2px}
+.header-project{color:#fff;font-size:18px;font-weight:850;margin-left:auto}
+.pulse-symbol{color:#ffcc00}
+.intro{margin:38px 0 25px}.eyebrow{color:#ffcc00;letter-spacing:1.25px}
+h1,h2,h3,.intro h1{color:#fff;font-weight:800;letter-spacing:-.7px}
+.title-accent{color:#ffcc00}.lead,.muted{color:#bdc2cc}
+.connection-panel{background:#12171f;border:1px solid #403a20;color:#e9ebee}
+.status-dot{background:#f6bd4e}
+.button{border-radius:8px;font-weight:750}
+.button-primary{background:#ffcd4b;color:#090909;border:1px solid #ffcd4b}
+.button-primary:hover{background:#ffe08b;border-color:#ffe08b}
+.button-secondary{background:#ffcd4b;color:#080808;border:1px solid #ffcd4b}
+.button-secondary:hover{background:#ffe08b;border-color:#ffe08b}
+.button-ghost{background:#252d39;color:#f7f7f7;border:1px solid #444e5c}
+.notice{background:#1b1a10;border:1px solid #55491d;color:#f6d77c}
+.metric,.panel{background:#12171f;border:1px solid #433b1b;border-radius:13px;box-shadow:none}
+.metric-primary{background:#12171f;border-color:#67581a;color:#fff}
+.metric-label{color:#c5c9d1}.metric-label span,.metric-primary .metric-label span{color:#ffcc00}
+.metric-value strong,.metric-primary .metric-value strong{color:#fff}
+.metric-primary .metric-value strong{color:#ffcc00}
+.metric-value span,.metric-primary .metric-value span{color:#bdc2cc}
+.metric-footer,.metric-primary .metric-footer{color:#b7bdc7}
+.small-dot.green{background:#70d3a2}.alert-value{color:#77dbac}
+.alert-value.is-low{color:#ffcd4b}.alert-value.is-alert{color:#ff747b}
+.panel-heading h2{color:#fff}.panel-icon{background:#2b291c;color:#ffcc00;border-radius:10px;padding:8px;min-width:43px;min-height:43px;display:grid;place-items:center}
+.control-head label{color:#f5f6f8}
+.control-head output{background:#302a11;color:#ffdb67}
+input[type=range]{accent-color:#ffcc00}
+.range-ends{color:#a8afbb}
+.sim-button{background:#171e28;border:1px solid #3c351b;color:#f4f5f7}
+.sim-button:hover,.sim-button.selected{background:#2c2818;border-color:#ffcc00;color:#fff}
+.info-card{background:#0d1118;border:1px solid #39341f}
+.integration-row{border-color:#343943;color:#c4c9d1}
+.integration-row .ok{color:#80dfb2}.integration-row .pending{color:#ffcf58}
+.educational-note{background:#12171f;border:1px solid #423a1a}
+.educational-note>span{color:#ffcc00}.educational-note p{color:#b9c0c9}
+.site-footer{background:#000;border-top:1px solid #383018}.footer-inner,.site-footer .footer-inner{color:#aeb4bd}
+.theme-toggle{display:flex;align-items:center;gap:9px;border:1px solid #49401f;border-radius:25px;background:#151921;color:#ffcc00;padding:8px 11px;font-size:17px;cursor:pointer}
+.toggle-track{width:37px;height:19px;border-radius:15px;background:#777c84;display:flex;align-items:center;padding:2px}
+.toggle-thumb{display:block;width:15px;height:15px;border-radius:50%;background:#fff;transition:transform .2s}
+/* Tema claro alternativo: se activa únicamente desde el botón del usuario. */
+body.light-theme{--background:#f6f7f9;--surface:#fff;--text:#11151b;--muted:#59616e;--border:#e2e4e8;--success:#18784c;--danger:#c82b37;--warning:#a16a00;background:var(--background);color:var(--text)}
+.light-theme .site-header{background:#fff;border-color:#e7d9a7}
+.light-theme .brand-subtitle,.light-theme .header-project{color:#171717}
+.light-theme .intro h1,.light-theme h1,.light-theme h2,.light-theme h3{color:#141414}
+.light-theme .lead,.light-theme .muted{color:#626b77}
+.light-theme .connection-panel,.light-theme .metric,.light-theme .panel,.light-theme .educational-note{background:#fff;color:#11151b;border-color:#e0e2e7}
+.light-theme .metric-primary{border-color:#e0c76a}
+.light-theme .metric-label,.light-theme .metric-footer,.light-theme .metric-primary .metric-footer{color:#646b77}
+.light-theme .metric-value strong,.light-theme .metric-primary .metric-value strong{color:#161616}
+.light-theme .metric-value span,.light-theme .metric-primary .metric-value span{color:#636b75}
+.light-theme .control-head label{color:#171717}
+.light-theme .control-head output{background:#fff2c7;color:#6b5100}
+.light-theme .sim-button{background:#fff;color:#151515;border-color:#e3e4e6}
+.light-theme .sim-button.selected,.light-theme .sim-button:hover{background:#fff5d5;border-color:#e3b900}
+.light-theme .info-card{background:#f7f8fa;border-color:#e4e6ea}
+.light-theme .integration-row{border-color:#e3e5e9;color:#525c68}
+.light-theme .educational-note p{color:#646c78}
+.light-theme .notice{background:#fff8df;border-color:#ebd687;color:#735800}
+.light-theme .site-footer{background:#fff;border-color:#e7d9a7}
+.light-theme .site-footer .footer-inner{color:#5d6570}
+.light-theme .theme-toggle{background:#f6f7f8}
+.light-theme .toggle-track{background:#ffcd4b}.light-theme .toggle-thumb{transform:translateX(18px)}
+.light-theme .alert-value{color:#18784c}.light-theme .alert-value.is-low{color:#a16a00}.light-theme .alert-value.is-alert{color:#c82b37}
+@media(max-width:650px){.header-inner{flex-wrap:wrap;padding-block:14px;min-height:80px}.brand-logo{width:155px}.brand-subtitle{display:none}.header-project{font-size:14px}.theme-toggle{padding:6px 8px;gap:5px}.intro{margin-top:25px}}
+
+/* Ajustes de alineación del encabezado y consistencia de superficies. */
+.header-inner{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px}
+.header-project{margin-left:auto}
+.theme-toggle{flex-shrink:0}
+@media(max-width:650px){.header-project{margin-left:0}.brand{flex:1 1 auto}}

@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080808">
+  <meta name="description" content="PulsoAlert, proyecto educativo del FabLab Kä Träre: monitoreo y configuración experimental de frecuencia cardíaca.">
+  <title>PulsoAlert | Kä Träre · FabLab</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="brand">
+        <img class="brand-logo" src="assets/katrare-logo.png" alt="Kä Träre" width="205" height="43">
+        <span class="brand-subtitle">FABLAB · UNED</span>
+      </div>
+      <div class="header-project"><span class="pulse-symbol" aria-hidden="true">♥</span><span>PulsoAlert</span></div>
+      <button id="themeToggle" class="theme-toggle" type="button" aria-label="Cambiar a tema claro" aria-pressed="false"><span aria-hidden="true">☾</span><span class="toggle-track"><span class="toggle-thumb"></span></span><span aria-hidden="true">☼</span></button>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="intro">
+      <div><p class="eyebrow">KÄ TRÄRE · LABORATORIO DE FABRICACIÓN DIGITAL</p><h1>PulsoAlert <span class="title-accent">Web</span></h1><p class="lead">Monitoreo y configuración experimental de frecuencia cardíaca · ESP32-C3</p></div>
+      <div class="connection-panel"><span class="status-dot" id="connectionDot"></span><span id="connectionLabel" role="status">Modo demostración</span><button id="connectButton" class="button button-secondary" type="button">Conectar BLE</button></div>
+    </section>
+
+
+    <div id="notice" class="notice" role="status">Estás utilizando datos simulados. No existe una conexión con la pulsera.</div>
+
+    <section class="metrics" aria-label="Mediciones">
+      <article class="metric metric-primary"><div class="metric-label">Frecuencia cardíaca <span aria-hidden="true">♡</span></div><div class="metric-value"><strong id="bpmValue">72</strong><span>BPM</span></div><div class="metric-footer"><span class="small-dot green"></span><span id="contactValue">Contacto detectado (simulado)</span></div></article>
+      <article class="metric"><div class="metric-label">Batería <span aria-hidden="true">▰</span></div><div class="metric-value"><strong id="batteryValue">3.92</strong><span>V</span></div><div class="metric-footer" id="batteryStatus">Estado: normal (simulado)</div></article>
+      <article class="metric"><div class="metric-label">Estado de alerta <span aria-hidden="true">⚑</span></div><div class="alert-value" id="alertValue">Normal</div><div class="metric-footer" id="alertDescription">Sin alerta activa (simulado)</div></article>
+    </section>
+
+    <div class="content-grid">
+      <section class="panel" aria-labelledby="settingsHeading">
+        <div class="panel-heading"><div><p class="eyebrow">CONFIGURACIÓN</p><h2 id="settingsHeading">Parámetros de alerta</h2></div><span class="panel-icon" aria-hidden="true">⚙</span></div>
+        <p class="muted">Modifica los parámetros para explorar el diseño. En esta versión los cambios solo afectan a la demostración.</p>
+        <div class="control"><div class="control-head"><label for="threshold">Umbral de frecuencia cardíaca</label><output id="thresholdOutput" for="threshold">50 BPM</output></div><input type="range" id="threshold" min="30" max="120" step="1" value="50"><div class="range-ends"><span>30 BPM</span><span>120 BPM</span></div></div>
+        <div class="control"><div class="control-head"><label for="cycles">Ciclos de vibración</label><output id="cyclesOutput" for="cycles">3 ciclos</output></div><input type="range" id="cycles" min="1" max="5" step="1" value="3"><div class="range-ends"><span>1 ciclo</span><span>5 ciclos</span></div></div>
+        <div class="control"><div class="control-head"><label for="ledMinutes">Duración del parpadeo LED</label><output id="ledMinutesOutput" for="ledMinutes">2 minutos</output></div><input type="range" id="ledMinutes" min="1" max="10" step="1" value="2"><div class="range-ends"><span>1 minuto</span><span>10 minutos</span></div></div>
+        <div class="action-row"><button class="button button-primary" id="applyButton" type="button">Aplicar a demostración</button><button class="button button-ghost" id="resetButton" type="button">Restablecer</button></div>
+        <p id="settingsMessage" class="feedback" role="status" aria-live="polite"></p>
+      </section>
+
+      <section class="panel" aria-labelledby="testingHeading">
+        <div class="panel-heading"><div><p class="eyebrow">LABORATORIO</p><h2 id="testingHeading">Simulador de estados</h2></div><span class="panel-icon" aria-hidden="true">⌁</span></div>
+        <p class="muted">Prueba visualmente cómo se presenta cada situación. Los botones no controlan el hardware.</p>
+        <div class="simulation-grid"><button type="button" class="sim-button selected" data-scenario="normal">♥ <span>Normal</span></button><button type="button" class="sim-button" data-scenario="low">↓ <span>FC baja</span></button><button type="button" class="sim-button" data-scenario="alert">! <span>Alerta</span></button><button type="button" class="sim-button" data-scenario="no-contact">○ <span>Sin contacto</span></button></div>
+        <div class="info-card"><h3>Estado de integración</h3><div class="integration-row"><span>Interfaz web</span><strong class="ok">Disponible</strong></div><div class="integration-row"><span>Datos de demostración</span><strong class="ok">Disponibles</strong></div><div class="integration-row"><span>Conexión Bluetooth LE</span><strong class="pending">Pendiente</strong></div><div class="integration-row"><span>Guardar parámetros en ESP32</span><strong class="pending">Pendiente</strong></div></div>
+      </section>
+    </div>
+    <section class="educational-note"><span aria-hidden="true">ⓘ</span><div><strong>Proyecto educativo</strong><p>PulsoAlert es un prototipo experimental. No es un dispositivo médico ni debe utilizarse para tomar decisiones clínicas. Las mediciones mostradas aquí son simuladas.</p></div></section>
+  </main>
+  <footer class="site-footer"><div class="container footer-inner"><span>© Kä Träre · FabLab</span><span>PulsoAlert Web v0.4.1 · Kä Träre</span></div></footer>
+</body>
+</html>
