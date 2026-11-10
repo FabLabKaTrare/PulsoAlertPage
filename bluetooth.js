@@ -1,5 +1,5 @@
-/* PulsoAlert Web v0.5.0 — Cliente BLE educativo.
- * Contrato GATT v1.0 PROPUESTO; requiere firmware v1.5 compatible.
+/* PulsoAlert Web v0.5.1 — Cliente BLE educativo.
+ * Contratos GATT v1.0 (6 bytes) y v1.1 (8 bytes).
  * Ninguna escritura se considera persistida sin confirmación y relectura.
  */
 'use strict';
@@ -14,9 +14,27 @@ const PulsoBLE = (() => {
   let onMeasurement = () => {}, onConnection = () => {};
   const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
   const isAvailable = () => Boolean(navigator.bluetooth && window.isSecureContext);
+  /**
+   * Decodifica la telemetría recibida por GATT.
+   * @param {DataView} view - Valor binario recibido del ESP32-C3.
+   * @returns {{bpm:number,contact:number,battery:number,alert:number,state:number,voltageMv:number|null}}
+   *   voltageMv es null en GATT v1.0 (6 bytes) o si v1.1 reporta 0 mV.
+   * @throws {Error} Cuando el paquete no tiene exactamente 6 u 8 bytes.
+   * Los campos multibyte son uint16 little-endian; no se infiere porcentaje desde voltaje.
+   */
   function measurement(view) {
-    if (view.byteLength !== 6) throw new Error('Medición BLE con longitud incorrecta.');
-    return { bpm: view.getUint16(0,true), contact: view.getUint8(2), battery: view.getUint8(3), alert: view.getUint8(4), state: view.getUint8(5) };
+    if (view.byteLength !== 6 && view.byteLength !== 8) {
+      throw new Error(`Medición BLE con longitud incorrecta (${view.byteLength} bytes; se esperan 6 u 8).`);
+    }
+    const mv = view.byteLength === 8 ? view.getUint16(6, true) : 0;
+    return {
+      bpm: view.getUint16(0, true),
+      contact: view.getUint8(2),
+      battery: view.getUint8(3), // 255 = porcentaje desconocido.
+      alert: view.getUint8(4),
+      state: view.getUint8(5),
+      voltageMv: mv > 0 ? mv : null
+    };
   }
   function status(view) {
     if (view.byteLength !== 4) throw new Error('Confirmación BLE con longitud incorrecta.');

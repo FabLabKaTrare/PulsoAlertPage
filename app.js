@@ -1,9 +1,9 @@
 /* ==============================================================
-   PULSOALERT WEB v0.5.0 - CONTROL DE INTERFAZ
+   PULSOALERT WEB v0.5.1 - CONTROL DE INTERFAZ
    Aplicación educativa sin dependencias externas.
 
    IMPORTANTE:
-   - Mantiene el simulador original y prepara BLE según contrato v1.0.
+   - Mantiene el simulador original y admite mediciones GATT v1.0 y v1.1.
    - El firmware BLE v1.5 todavía no está validado.
    ============================================================== */
 'use strict';
@@ -91,10 +91,28 @@ function showMeasurement(data) {
   const valid = data.contact === 1 && data.state === 1 && data.bpm > 0;
   document.getElementById('bpmValue').textContent = valid ? String(data.bpm) : '--';
   document.getElementById('contactValue').textContent = data.contact === 1 ? 'Contacto detectado' : 'Sin contacto';
-  const battery = data.battery <= 100 ? `${data.battery}` : '--';
-  document.getElementById('batteryValue').textContent = battery;
-  document.querySelector('.metric:nth-child(2) .metric-value span').textContent = '%';
-  document.getElementById('batteryStatus').textContent = data.battery <= 100 ? 'Batería reportada por el dispositivo' : 'Batería no disponible';
+  // Priorizar el voltaje medido (GATT v1.1); no estimar porcentaje desde voltios.
+  // En GATT v1.0, conservar el porcentaje si el firmware lo reporta (0–100).
+  const voltageAvailable = Number.isInteger(data.voltageMv) && data.voltageMv > 0;
+  const percentageAvailable = Number.isInteger(data.battery) && data.battery >= 0 && data.battery <= 100;
+  const batteryValue = document.getElementById('batteryValue');
+  const batteryUnit = document.querySelector('.metric:nth-child(2) .metric-value span');
+  const batteryStatus = document.getElementById('batteryStatus');
+  if (voltageAvailable) {
+    batteryValue.textContent = (data.voltageMv / 1000).toFixed(3);
+    batteryUnit.textContent = 'V';
+    batteryStatus.textContent = percentageAvailable
+      ? `Voltaje medido · ${data.battery}% reportado por el dispositivo`
+      : 'Voltaje medido · porcentaje sin calibrar';
+  } else if (percentageAvailable) {
+    batteryValue.textContent = String(data.battery);
+    batteryUnit.textContent = '%';
+    batteryStatus.textContent = 'Porcentaje reportado por el dispositivo · voltaje no disponible';
+  } else {
+    batteryValue.textContent = '--';
+    batteryUnit.textContent = '';
+    batteryStatus.textContent = 'Batería no disponible';
+  }
   const alert = document.getElementById('alertValue');
   alert.textContent = data.alert === 1 ? '¡Alerta!' : valid ? 'Normal' : 'Sin lectura';
   alert.className = `alert-value ${data.alert === 1 ? 'is-alert' : ''}`.trim();

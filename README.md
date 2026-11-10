@@ -1,3 +1,9 @@
+# PulsoAlert Web v0.5.1
+
+**Etapa 1:** compatibilidad de telemetría GATT v1.0 (6 bytes) y v1.1 (8 bytes).
+
+Consulta `docs/CAMBIOS_Web_v0.5.1.md` para modificaciones y pruebas.
+
 # PulsoAlert Web v0.5.0 — Kä Träre / FabLab UNED
 
 Basado en la interfaz aprobada v0.4.1. Se preservan `styles.css`, logotipo y layout.
